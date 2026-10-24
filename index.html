@@ -1,0 +1,3018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ResQSim v3.1 — Citizen Flood Reporting, Live Disaster Updates & Resource Simulator</title>
+  <style>
+    /* ==========================================================================
+       1. DESIGN SYSTEM & TOKENS (Navy, White, Teal, Amber - 100% Offline CSS)
+       ========================================================================== */
+    :root {
+      --navy-950: #06101e;
+      --navy-900: #0a192f;
+      --navy-800: #112240;
+      --navy-700: #1d3557;
+      --teal-700: #0f766e;
+      --teal-600: #0d9488;
+      --teal-500: #14b8a6;
+      --teal-100: #ccfbf1;
+      --teal-50:  #f0fdfa;
+      --amber-700: #b45309;
+      --amber-600: #d97706;
+      --amber-500: #f59e0b;
+      --amber-100: #fef3c7;
+      --amber-50:  #fffbeb;
+      --red-700:   #b91c1c;
+      --red-600:   #dc2626;
+      --red-100:   #fee2e2;
+      --red-50:    #fef2f2;
+      --green-700: #15803d;
+      --green-100: #dcfce7;
+      --slate-900: #0f172a;
+      --slate-800: #1e293b;
+      --slate-700: #334155;
+      --slate-600: #475569;
+      --slate-500: #64748b;
+      --slate-400: #94a3b8;
+      --slate-300: #cbd5e1;
+      --slate-200: #e2e8f0;
+      --slate-100: #f1f5f9;
+      --slate-50:  #f8fafc;
+      --white:     #ffffff;
+      --radius-lg: 12px;
+      --radius-md: 8px;
+      --radius-sm: 6px;
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
+      --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+      --shadow-lg: 0 12px 28px rgba(10, 25, 47, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
+      color: var(--slate-900);
+      background-color: var(--slate-100);
+      line-height: 1.5;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ==========================================================================
+       2. DISCLAIMER BANNER & STICKY NAVIGATION
+       ========================================================================== */
+    .prototype-banner {
+      background-color: var(--amber-500);
+      color: var(--navy-950);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-align: center;
+      padding: 0.5rem 1rem;
+      border-bottom: 1px solid var(--amber-600);
+    }
+
+    .navbar {
+      background-color: var(--navy-900);
+      color: var(--white);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: var(--shadow-md);
+    }
+
+    .nav-inner {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+      text-decoration: none;
+      color: var(--white);
+    }
+
+    .brand-logo {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, var(--teal-500), var(--teal-700));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 1.2rem;
+      color: var(--white);
+      box-shadow: 0 2px 8px rgba(20, 184, 166, 0.35);
+    }
+
+    .brand-name {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .brand-tag {
+      font-size: 0.65rem;
+      font-weight: 700;
+      background: rgba(20, 184, 166, 0.2);
+      color: var(--teal-100);
+      border: 1px solid rgba(20, 184, 166, 0.45);
+      padding: 0.1rem 0.45rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+
+    .brand-sub {
+      font-size: 0.7rem;
+      color: var(--slate-300);
+    }
+
+    .nav-tabs {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+    }
+
+    .nav-tab {
+      background: transparent;
+      color: var(--slate-300);
+      border: 1px solid transparent;
+      padding: 0.45rem 0.8rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .nav-tab:hover {
+      color: var(--white);
+      background-color: var(--navy-800);
+    }
+
+    .nav-tab.active {
+      background-color: var(--teal-600);
+      color: var(--white);
+      border-color: var(--teal-500);
+    }
+
+    .nav-badge {
+      background-color: var(--amber-500);
+      color: var(--navy-950);
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 0.05rem 0.4rem;
+      border-radius: 999px;
+    }
+
+    /* ==========================================================================
+       3. COMMON LAYOUT, BUTTONS & CARDS
+       ========================================================================== */
+    .container {
+      max-width: 1320px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.75rem 1.25rem;
+    }
+
+    .view-section {
+      display: none;
+    }
+
+    .view-section.active {
+      display: block;
+    }
+
+    .card {
+      background-color: var(--white);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      padding: 1.35rem;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding-bottom: 0.85rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--slate-100);
+      flex-wrap: wrap;
+    }
+
+    .card-title {
+      font-size: 1.02rem;
+      font-weight: 800;
+      color: var(--navy-900);
+    }
+
+    .card-subtitle {
+      font-size: 0.78rem;
+      color: var(--slate-500);
+      margin-top: 0.15rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      font-size: 0.84rem;
+      font-weight: 700;
+      padding: 0.58rem 1.05rem;
+      border-radius: var(--radius-md);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-decoration: none;
+      line-height: 1.2;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-sm {
+      font-size: 0.75rem;
+      padding: 0.38rem 0.75rem;
+      border-radius: var(--radius-sm);
+    }
+
+    .btn-amber {
+      background-color: var(--amber-500);
+      color: var(--navy-950);
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
+    }
+    .btn-amber:hover:not(:disabled) {
+      background-color: var(--amber-600);
+      color: var(--white);
+    }
+
+    .btn-teal {
+      background-color: var(--teal-600);
+      color: var(--white);
+    }
+    .btn-teal:hover:not(:disabled) {
+      background-color: var(--teal-700);
+    }
+
+    .btn-navy {
+      background-color: var(--navy-900);
+      color: var(--white);
+    }
+    .btn-navy:hover:not(:disabled) {
+      background-color: var(--navy-700);
+    }
+
+    .btn-outline {
+      background-color: var(--white);
+      color: var(--navy-900);
+      border-color: var(--slate-300);
+    }
+    .btn-outline:hover:not(:disabled) {
+      background-color: var(--slate-50);
+      border-color: var(--navy-800);
+    }
+
+    .btn-danger-sm {
+      background-color: var(--red-50);
+      color: var(--red-600);
+      border: 1px solid var(--red-100);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.28rem 0.6rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+    }
+    .btn-danger-sm:hover {
+      background-color: var(--red-100);
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .badge-pending { background: var(--amber-100); color: var(--amber-700); }
+    .badge-review  { background: #dbeafe; color: #1d4ed8; }
+    .badge-verified{ background: var(--green-100); color: var(--green-700); }
+    .badge-rejected{ background: var(--slate-200); color: var(--slate-600); }
+    .badge-danger  { background: var(--red-100); color: var(--red-700); }
+    .badge-teal    { background: var(--teal-50); color: var(--teal-700); border: 1px solid var(--teal-100); }
+    .badge-navy    { background: var(--slate-100); color: var(--navy-900); }
+
+    /* Alerts */
+    .alert {
+      padding: 0.85rem 1rem;
+      border-radius: var(--radius-md);
+      font-size: 0.82rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+    .alert.show {
+      display: block;
+    }
+    .alert-error {
+      background-color: var(--red-50);
+      border-left: 4px solid var(--red-600);
+      color: var(--red-700);
+    }
+    .alert-warning {
+      background-color: var(--amber-50);
+      border-left: 4px solid var(--amber-500);
+      color: var(--amber-700);
+    }
+    .alert-success {
+      background-color: var(--teal-50);
+      border-left: 4px solid var(--teal-600);
+      color: var(--teal-700);
+    }
+
+    /* ==========================================================================
+       4. LIVE DISASTER UPDATES PANEL (COMPACT OVERVIEW + FULL PAGE)
+       ========================================================================== */
+    .live-updates-panel {
+      background: var(--white);
+      border: 1px solid var(--slate-200);
+      border-left: 5px solid var(--teal-600);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      margin-bottom: 1.75rem;
+      box-shadow: var(--shadow-md);
+    }
+
+    .live-panel-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.85rem;
+      padding-bottom: 0.85rem;
+      border-bottom: 1px solid var(--slate-100);
+      margin-bottom: 1rem;
+    }
+
+    .live-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background-color: var(--teal-500);
+      display: inline-block;
+      box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.2);
+    }
+
+    .live-dot.amber {
+      background-color: var(--amber-500);
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+    }
+
+    .live-dot.red {
+      background-color: var(--red-600);
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+    }
+
+    .official-portals-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .portal-card {
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-md);
+      padding: 0.75rem 0.9rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.45rem;
+    }
+
+    .portal-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.4rem;
+    }
+
+    .portal-link {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--teal-700);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .portal-link:hover {
+      text-decoration: underline;
+    }
+
+    .alerts-compact-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.85rem;
+    }
+
+    .disaster-item-card {
+      background: var(--white);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-md);
+      padding: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.5rem;
+      transition: border-color 0.15s ease;
+    }
+    .disaster-item-card:hover {
+      border-color: var(--teal-600);
+    }
+
+    .disaster-item-card.sample-card {
+      background-color: var(--amber-50);
+      border: 1px dashed var(--amber-500);
+    }
+
+    .meta-timestamps {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-size: 0.73rem;
+      color: var(--slate-600);
+      background: var(--slate-50);
+      padding: 0.5rem 0.85rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--slate-200);
+    }
+
+    /* ==========================================================================
+       5. HERO, WORKFLOW, FORMS & TABLES
+       ========================================================================== */
+    .hero-banner {
+      background: linear-gradient(135deg, var(--navy-950) 0%, var(--navy-900) 55%, var(--navy-800) 100%);
+      color: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 2.25rem 2rem;
+      box-shadow: var(--shadow-lg);
+      margin-bottom: 1.5rem;
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.45);
+      color: var(--amber-500);
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.85rem;
+    }
+
+    .hero-banner h1 {
+      font-size: 2rem;
+      font-weight: 900;
+      line-height: 1.18;
+      margin-bottom: 0.85rem;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-banner h1 span {
+      color: var(--teal-500);
+    }
+
+    .hero-banner p {
+      font-size: 0.93rem;
+      color: var(--slate-300);
+      margin-bottom: 1.35rem;
+      max-width: 620px;
+    }
+
+    .hero-cta-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .workflow-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .workflow-card {
+      background: var(--white);
+      border: 1px solid var(--slate-200);
+      border-top: 4px solid var(--teal-600);
+      border-radius: var(--radius-lg);
+      padding: 1.35rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .workflow-card.amber-top { border-top-color: var(--amber-500); }
+    .workflow-card.navy-top  { border-top-color: var(--navy-800); }
+
+    .wf-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      background-color: var(--teal-50);
+      color: var(--teal-700);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.85rem;
+    }
+
+    .two-col-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    .sim-layout-grid {
+      display: grid;
+      grid-template-columns: 5fr 7fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+    }
+
+    .form-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+    }
+
+    .form-group {
+      margin-bottom: 0.85rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--slate-700);
+      margin-bottom: 0.28rem;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.52rem 0.68rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--navy-900);
+      background-color: var(--white);
+      border: 1px solid var(--slate-300);
+      border-radius: var(--radius-sm);
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--teal-600);
+      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+    }
+
+    .help-text {
+      display: block;
+      font-size: 0.7rem;
+      color: var(--slate-500);
+      margin-top: 0.2rem;
+    }
+
+    .map-picker-box {
+      background-color: var(--navy-950);
+      border: 2px solid var(--slate-300);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      position: relative;
+      cursor: crosshair;
+      user-select: none;
+    }
+
+    .photo-preview-box {
+      margin-top: 0.5rem;
+      display: none;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--slate-50);
+      padding: 0.5rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--slate-200);
+    }
+
+    .photo-preview-box img {
+      width: 64px;
+      height: 64px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid var(--slate-300);
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      text-align: left;
+    }
+
+    .data-table th {
+      background-color: var(--slate-50);
+      color: var(--slate-600);
+      font-weight: 700;
+      padding: 0.7rem 0.85rem;
+      border-bottom: 1px solid var(--slate-200);
+      white-space: nowrap;
+    }
+
+    .data-table td {
+      padding: 0.7rem 0.85rem;
+      border-bottom: 1px solid var(--slate-100);
+      vertical-align: top;
+    }
+
+    .data-table tr:hover td {
+      background-color: var(--slate-50);
+    }
+
+    .zone-card {
+      background-color: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-md);
+      padding: 0.85rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .zone-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .zone-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      background-color: var(--navy-900);
+      color: var(--white);
+      font-size: 0.74rem;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .chart-box {
+      background-color: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-md);
+      padding: 0.9rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .bar-track {
+      width: 100%;
+      height: 10px;
+      background-color: var(--slate-200);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 0.25rem;
+    }
+
+    .bar-fill-a {
+      height: 100%;
+      background-color: var(--navy-800);
+      transition: width 0.35s ease;
+    }
+
+    .bar-fill-b {
+      height: 100%;
+      background-color: var(--teal-600);
+      transition: width 0.35s ease;
+    }
+
+    .footer {
+      background-color: var(--navy-950);
+      color: var(--slate-400);
+      padding: 2rem 1.25rem;
+      margin-top: auto;
+      font-size: 0.78rem;
+      border-top: 1px solid var(--slate-800);
+    }
+
+    @media (max-width: 1024px) {
+      .hero-banner,
+      .workflow-grid,
+      .two-col-grid,
+      .sim-layout-grid,
+      .official-portals-strip,
+      .alerts-compact-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .form-grid-2,
+      .form-grid-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP PROTOTYPE DISCLAIMER -->
+  <div class="prototype-banner">
+    ⚠️ DEMO PROTOTYPE ONLY — Citizen reports are saved in local browser storage. Official Indian disaster portals (NDMA SACHET, IMD, Bihar FMISC) are linked directly; live API fetching is performed only where public CORS is supported.
+  </div>
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="navbar">
+    <div class="nav-inner">
+      <a class="brand" onclick="window.ResQSimApp.switchView('landing')">
+        <div class="brand-logo">R</div>
+        <div>
+          <div class="brand-name">
+            ResQSim <span class="brand-tag">v3.1 Integrated</span>
+          </div>
+          <div class="brand-sub">Flood Reporting, Official Disaster Feeds &amp; Resource Simulator</div>
+        </div>
+      </a>
+
+      <nav class="nav-tabs">
+        <button type="button" id="tabBtn-landing" class="nav-tab active" onclick="window.ResQSimApp.switchView('landing')">
+          1. Overview
+        </button>
+        <button type="button" id="tabBtn-alerts" class="nav-tab" onclick="window.ResQSimApp.switchView('alerts')">
+          2. Live Disaster Alerts <span id="navLiveBadge" class="nav-badge" style="background:var(--teal-500); color:#fff;">LIVE</span>
+        </button>
+        <button type="button" id="tabBtn-report" class="nav-tab" onclick="window.ResQSimApp.switchView('report')">
+          3. Report Flood
+        </button>
+        <button type="button" id="tabBtn-coordinator" class="nav-tab" onclick="window.ResQSimApp.switchView('coordinator')">
+          4. Coordinator Dashboard <span id="navReportCount" class="nav-badge">0</span>
+        </button>
+        <button type="button" id="tabBtn-simulator" class="nav-tab" onclick="window.ResQSimApp.switchView('simulator')">
+          5. Resource &amp; Dispatch Simulator
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       VIEW 1: PROFESSIONAL LANDING PAGE + COMPACT LIVE DISASTER UPDATES BOX
+       ======================================================================== -->
+  <main id="view-landing" class="view-section active container">
+
+    <!-- HERO BANNER -->
+    <div class="hero-banner">
+      <div>
+        <div class="hero-eyebrow">● End-to-End Urban Flood Decision Prototype</div>
+        <h1>From Official Indian Hazard Feeds &amp; Citizen Reports to <span>Deterministic Dispatch</span></h1>
+        <p>
+          ResQSim combines official Indian disaster monitoring links (NDMA SACHET, IMD, Bihar FMISC) and live public API disaster feeds with citizen distress reporting, human coordinator verification, and deterministic rescue boat simulation.
+        </p>
+        <div class="hero-cta-group">
+          <button type="button" class="btn btn-amber" onclick="window.ResQSimApp.switchView('report')">
+            📢 Report Flood (Citizen Form)
+          </button>
+          <button type="button" class="btn btn-teal" onclick="window.ResQSimApp.switchView('coordinator')">
+            🛡️ Coordinator Dashboard
+          </button>
+          <button type="button" class="btn btn-outline" style="background:rgba(255,255,255,0.1); color:#fff; border-color:rgba(255,255,255,0.3);" onclick="window.ResQSimApp.switchView('simulator')">
+            🚤 Launch Simulation ▶
+          </button>
+        </div>
+      </div>
+
+      <!-- Inline SVG Emergency Workflow Illustration -->
+      <div style="background: rgba(17, 34, 64, 0.9); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 1.25rem;">
+        <div style="font-size: 0.74rem; font-weight: 800; text-transform: uppercase; color: var(--teal-500); margin-bottom: 0.75rem; letter-spacing: 0.05em;">
+          System Architecture &amp; Verification Pipeline
+        </div>
+        <svg viewBox="0 0 360 195" width="100%" height="auto" role="img" aria-label="Emergency Workflow Diagram">
+          <rect x="10" y="12" width="340" height="46" rx="8" fill="#06101e" stroke="#14b8a6" stroke-width="1.5"/>
+          <circle cx="36" cy="35" r="13" fill="#0d9488"/>
+          <text x="36" y="40" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold">1</text>
+          <text x="60" y="31" fill="#ffffff" font-size="12" font-weight="bold">Official Bulletins &amp; Citizen Intake</text>
+          <text x="60" y="47" fill="#94a3b8" font-size="10">NDMA/IMD/FMISC links + unverified citizen distress reports</text>
+
+          <line x1="180" y1="58" x2="180" y2="73" stroke="#f59e0b" stroke-width="2"/>
+          <polygon points="175,71 185,71 180,77" fill="#f59e0b"/>
+
+          <rect x="10" y="77" width="340" height="46" rx="8" fill="#06101e" stroke="#f59e0b" stroke-width="1.5"/>
+          <circle cx="36" cy="100" r="13" fill="#d97706"/>
+          <text x="36" y="105" text-anchor="middle" fill="#06101e" font-size="12" font-weight="bold">2</text>
+          <text x="60" y="96" fill="#ffffff" font-size="12" font-weight="bold">Coordinator Human Review &amp; Triage</text>
+          <text x="60" y="112" fill="#94a3b8" font-size="10">Filter by urgency, inspect spatial grid, record notes &amp; mark Verified</text>
+
+          <line x1="180" y1="123" x2="180" y2="138" stroke="#14b8a6" stroke-width="2"/>
+          <polygon points="175,136 185,136 180,142" fill="#14b8a6"/>
+
+          <rect x="10" y="142" width="340" height="46" rx="8" fill="#06101e" stroke="#38bdf8" stroke-width="1.5"/>
+          <circle cx="36" cy="165" r="13" fill="#0284c7"/>
+          <text x="36" y="170" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold">3</text>
+          <text x="60" y="161" fill="#ffffff" font-size="12" font-weight="bold">Deterministic Route &amp; Fleet Simulation</text>
+          <text x="60" y="177" fill="#94a3b8" font-size="10">Compare Nearest-First (Plan A) vs. Severity-Weighted Triage (Plan B)</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- ======================================================================
+         NEW REQUIREMENT: COMPACT LIVE DISASTER UPDATES PANEL ON OVERVIEW PAGE
+         ====================================================================== -->
+    <section class="live-updates-panel" aria-label="Live Disaster Updates Panel">
+      <div class="live-panel-top">
+        <div>
+          <div style="display:flex; align-items:center; gap:0.5rem;">
+            <span id="compactLiveDot" class="live-dot"></span>
+            <h2 style="font-size:1.08rem; font-weight:800; color:var(--navy-900);">
+              Live Indian Disaster Updates &amp; Official Monitoring Gateways
+            </h2>
+            <span id="compactFeedStatusBadge" class="badge badge-teal">Checking Live Feed...</span>
+          </div>
+          <p style="font-size:0.78rem; color:var(--slate-600); margin-top:0.2rem;">
+            Visible to all visitors without login • Prioritizes NDMA SACHET, IMD, and Bihar FMISC alongside live CORS-supported India disaster feeds (Floods, Cyclones, Heavy Rain, Landslides).
+          </p>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+          <button type="button" id="btnCompactRefresh" class="btn btn-outline btn-sm" onclick="window.ResQSimApp.refreshLiveDisasterData(true)">
+            ↻ Refresh Live Feed
+          </button>
+          <button type="button" class="btn btn-navy btn-sm" onclick="window.ResQSimApp.switchView('alerts')">
+            Open Full Alerts View &amp; CORS Details →
+          </button>
+        </div>
+      </div>
+
+      <!-- Timestamp Separation Bar -->
+      <div class="meta-timestamps" style="margin-bottom:0.9rem;">
+        <span><strong>Last Checked by Browser:</strong> <span id="compactLastChecked">Not checked yet</span></span>
+        <span><strong>Latest Official Source Update Time:</strong> <span id="compactSourceTime">Awaiting live response...</span></span>
+        <span><strong>Auto-Refresh Interval:</strong> Every 5 mins (while page open)</span>
+      </div>
+
+      <!-- Official Priority Government Portals (Honest CORS Status) -->
+      <div class="official-portals-strip">
+        <div class="portal-card">
+          <div>
+            <div class="portal-card-head">
+              <strong style="font-size:0.82rem; color:var(--navy-900);">1. NDMA SACHET (CAP Alerts)</strong>
+              <span class="badge badge-navy">Official Portal Link</span>
+            </div>
+            <p style="font-size:0.73rem; color:var(--slate-600); margin-top:0.25rem;">
+              All-India State/District Early Warning Common Alerting Protocol (CAP) portal for floods, lightning, and cyclones.
+            </p>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding-top:0.35rem; border-top:1px solid var(--slate-200);">
+            <span style="font-size:0.68rem; color:var(--amber-700); font-weight:600;">Direct CORS blocked by gov server</span>
+            <a href="https://sachet.ndma.gov.in/" target="_blank" rel="noopener noreferrer" class="portal-link">
+              Open SACHET ↗
+            </a>
+          </div>
+        </div>
+
+        <div class="portal-card">
+          <div>
+            <div class="portal-card-head">
+              <strong style="font-size:0.82rem; color:var(--navy-900);">2. IMD Mausam (Met Dept)</strong>
+              <span class="badge badge-navy">Official Portal Link</span>
+            </div>
+            <p style="font-size:0.73rem; color:var(--slate-600); margin-top:0.25rem;">
+              India Meteorological Department heavy rainfall warnings, red/orange/yellow district alerts, and cyclone bulletins.
+            </p>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding-top:0.35rem; border-top:1px solid var(--slate-200);">
+            <span style="font-size:0.68rem; color:var(--amber-700); font-weight:600;">Direct CORS blocked by gov server</span>
+            <a href="https://mausam.imd.gov.in/" target="_blank" rel="noopener noreferrer" class="portal-link">
+              Open IMD Mausam ↗
+            </a>
+          </div>
+        </div>
+
+        <div class="portal-card">
+          <div>
+            <div class="portal-card-head">
+              <strong style="font-size:0.82rem; color:var(--navy-900);">3. Bihar FMISC River Levels</strong>
+              <span class="badge badge-navy">Official Portal Link</span>
+            </div>
+            <p style="font-size:0.73rem; color:var(--slate-600); margin-top:0.25rem;">
+              Water Resources Dept. (BEAMS) real-time danger level &amp; river gauge table across Ganga, Kosi, Gandak &amp; Bagmati basins.
+            </p>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding-top:0.35rem; border-top:1px solid var(--slate-200);">
+            <span style="font-size:0.68rem; color:var(--amber-700); font-weight:600;">ASP.NET ViewState (Link Only)</span>
+            <a href="https://beams.fmiscwrdbihar.gov.in/Alerttotalinfo/realtimetotal.aspx" target="_blank" rel="noopener noreferrer" class="portal-link">
+              Open Bihar BEAMS ↗
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Compact Live Feed Error / Unavailable State -->
+      <div id="compactLiveErrorBox" class="alert alert-warning" style="margin-bottom:0.75rem;"></div>
+
+      <!-- Compact Live Verified Items Container -->
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+          <span style="font-size:0.76rem; font-weight:800; color:var(--navy-900); text-transform:uppercase; letter-spacing:0.03em;">
+            Verified Live India Disaster Feed (ReliefWeb UN OCHA Public CORS API)
+          </span>
+          <span style="font-size:0.72rem; color:var(--slate-500);">Never mixed with sample/demo items</span>
+        </div>
+        <div id="compactLiveItemsGrid" class="alerts-compact-grid">
+          <div style="font-size:0.8rem; color:var(--slate-500); padding:0.75rem;">Fetching live Indian disaster records...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 Module Cards -->
+    <div class="workflow-grid">
+      <div class="workflow-card">
+        <div>
+          <div class="wf-icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+          </div>
+          <h3 class="card-title">1. Citizen Flood Report Intake</h3>
+          <p style="font-size: 0.83rem; color: var(--slate-600); margin: 0.5rem 0 1rem;">
+            Submit distress reports with validated latitude/longitude, interactive sector grid pin placement, people affected, immediate danger flags, injury status, and optional photo preview. Includes automatic duplicate-report warnings.
+          </p>
+        </div>
+        <button type="button" class="btn btn-outline" onclick="window.ResQSimApp.switchView('report')">
+          Open Citizen Form →
+        </button>
+      </div>
+
+      <div class="workflow-card amber-top">
+        <div>
+          <div class="wf-icon" style="background: var(--amber-100); color: var(--amber-700);">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <h3 class="card-title">2. Coordinator Triage &amp; Verification</h3>
+          <p style="font-size: 0.83rem; color: var(--slate-600); margin: 0.5rem 0 1rem;">
+            Separates unverified citizen submissions from human-verified incidents. Filter reports by status or danger level, view spatial pin positions, record coordinator review notes, and promote verified zones directly into the simulator.
+          </p>
+        </div>
+        <button type="button" class="btn btn-outline" onclick="window.ResQSimApp.switchView('coordinator')">
+          Open Coordinator Dashboard →
+        </button>
+      </div>
+
+      <div class="workflow-card navy-top">
+        <div>
+          <div class="wf-icon" style="background: var(--slate-100); color: var(--navy-900);">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <h3 class="card-title">3. Resource &amp; Dispatch Simulator</h3>
+          <p style="font-size: 0.83rem; color: var(--slate-600); margin: 0.5rem 0 1rem;">
+            Configure rescue boats, passenger capacity, operating window, and manually supplied route conditions (Clear, Obstructed +25% travel time, or Flooded/Boat-Only). Compare Nearest-First vs. Severity-Weighted Triage deterministically.
+          </p>
+        </div>
+        <button type="button" class="btn btn-outline" onclick="window.ResQSimApp.switchView('simulator')">
+          Open Dispatch Simulator →
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ========================================================================
+       VIEW 2 (NEW): FULL LIVE DISASTER ALERTS & OFFICIAL FEEDS WORKSPACE
+       ======================================================================== -->
+  <section id="view-alerts" class="view-section container">
+    <div class="card" style="margin-bottom:1.5rem;">
+      <div class="card-header">
+        <div>
+          <div style="display:flex; align-items:center; gap:0.5rem;">
+            <span id="fullLiveDot" class="live-dot"></span>
+            <h2 class="card-title" style="font-size:1.2rem;">Indian Disaster Monitoring &amp; Live Alerts Center</h2>
+            <span id="fullFeedStatusBadge" class="badge badge-teal">Checking...</span>
+          </div>
+          <p class="card-subtitle">
+            Real-time public API disaster updates for India, direct official government monitoring links, and separated training reference samples.
+          </p>
+        </div>
+
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+          <select id="hazardFilterSelect" class="form-control" style="width:auto; font-size:0.78rem; padding:0.4rem 0.65rem;" onchange="window.ResQSimApp.renderFullAlertsView()">
+            <option value="ALL">All Hazard Types</option>
+            <option value="Flood">Flood / Flash Flood</option>
+            <option value="Cyclone">Cyclone / Tropical Storm</option>
+            <option value="Landslide">Landslide / Mudslide</option>
+            <option value="Heavy Rain">Heavy Rainfall / Severe Weather</option>
+          </select>
+          <button type="button" class="btn btn-teal btn-sm" onclick="window.ResQSimApp.refreshLiveDisasterData(true)">
+            ↻ Manual Refresh Now
+          </button>
+        </div>
+      </div>
+
+      <!-- Timestamp & Connection Diagnostics -->
+      <div class="meta-timestamps" style="margin-bottom:1rem;">
+        <span><strong>Last Checked (Browser Clock):</strong> <span id="fullLastChecked">—</span></span>
+        <span><strong>Latest Source Publication Time:</strong> <span id="fullSourceUpdated">—</span></span>
+        <span><strong>Live Endpoint:</strong> <code>api.reliefweb.int/v1/disasters (India)</code></span>
+      </div>
+
+      <!-- Error / Unavailable Banner when offline or blocked -->
+      <div id="fullLiveErrorBanner" class="alert alert-warning"></div>
+
+      <!-- SECTION A: VERIFIED LIVE ALERTS FROM PUBLIC API -->
+      <div style="margin-bottom:1.75rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+          <h3 style="font-size:0.95rem; font-weight:800; color:var(--navy-900);">
+            A. Verified Live Indian Disaster Events (Fetched from Official Public API)
+          </h3>
+          <span class="badge badge-verified">Live Network Data — Zero Fabricated Fields</span>
+        </div>
+        <div id="fullLiveAlertsContainer" class="alerts-compact-grid"></div>
+      </div>
+
+      <!-- SECTION B: OFFICIAL INDIAN PORTALS & OPTIONAL PROXY HOOK -->
+      <div style="margin-bottom:1.75rem; padding-top:1.25rem; border-top:1px solid var(--slate-200);">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.75rem;">
+          <div>
+            <h3 style="font-size:0.95rem; font-weight:800; color:var(--navy-900);">
+              B. Official Indian Government Warning Portals &amp; Browser CORS Architecture
+            </h3>
+            <p style="font-size:0.76rem; color:var(--slate-600);">
+              Why NDMA SACHET, IMD, and Bihar FMISC cannot be scraped directly from a static <code>file://</code> browser tab without a backend proxy:
+            </p>
+          </div>
+          <span class="badge badge-navy">Technical Transparency</span>
+        </div>
+
+        <div class="table-wrap" style="margin-bottom:1rem;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Official Source</th>
+                <th>Coverage &amp; Hazard Focus</th>
+                <th>Integration Status in Static Browser</th>
+                <th>Backend Proxy Requirement</th>
+                <th>Official Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>NDMA SACHET</strong></td>
+                <td>Pan-India State &amp; District CAP Early Warnings (Floods, Lightning, Cyclones)</td>
+                <td><span class="badge badge-pending">Official Link + Proxy Hook</span></td>
+                <td>SACHET servers omit <code>Access-Control-Allow-Origin: *</code>. Requires a lightweight Node/Python relay to forward CAP XML/RSS to the browser.</td>
+                <td><a href="https://sachet.ndma.gov.in/" target="_blank" rel="noopener noreferrer" class="portal-link">Visit sachet.ndma.gov.in ↗</a></td>
+              </tr>
+              <tr>
+                <td><strong>IMD (Mausam)</strong></td>
+                <td>All-India Heavy Rainfall, Sub-division Red/Orange/Yellow Alerts &amp; Cyclones</td>
+                <td><span class="badge badge-pending">Official Link Only</span></td>
+                <td>IMD publishes HTML pages and PDF bulletins without public CORS headers. Requires a server-side parser or WMS proxy.</td>
+                <td><a href="https://mausam.imd.gov.in/" target="_blank" rel="noopener noreferrer" class="portal-link">Visit mausam.imd.gov.in ↗</a></td>
+              </tr>
+              <tr>
+                <td><strong>Bihar FMISC (BEAMS)</strong></td>
+                <td>Bihar River Gauge Stations, Danger Level &amp; Flood Trend (Ganga, Kosi, Bagmati)</td>
+                <td><span class="badge badge-pending">Official Link Only</span></td>
+                <td>Uses ASP.NET WebForms (<code>realtimetotal.aspx</code>) with session <code>__VIEWSTATE</code> and no CORS headers. Requires a backend HTML table scraper.</td>
+                <td><a href="https://beams.fmiscwrdbihar.gov.in/Alerttotalinfo/realtimetotal.aspx" target="_blank" rel="noopener noreferrer" class="portal-link">Visit Bihar BEAMS ↗</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Optional Local Backend Proxy Input for Advanced Demo -->
+        <div style="background:var(--slate-50); border:1px solid var(--slate-200); border-radius:var(--radius-md); padding:0.9rem;">
+          <div style="font-size:0.8rem; font-weight:800; color:var(--navy-900); margin-bottom:0.25rem;">
+            Optional: Connect Local Backend CAP/RSS Proxy (For Advanced Judge Demo)
+          </div>
+          <p style="font-size:0.74rem; color:var(--slate-600); margin-bottom:0.6rem;">
+            If you run a local CORS proxy (e.g., <code>http://localhost:3001/sachet-cap</code>) that forwards NDMA SACHET CAP XML or JSON, paste its URL below to parse live CAP alerts directly:
+          </p>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <input id="customProxyUrl" type="url" class="form-control" style="max-width:420px; font-size:0.8rem;" placeholder="e.g., http://localhost:3001/api/sachet-cap" />
+            <button type="button" class="btn btn-navy btn-sm" onclick="window.ResQSimApp.fetchFromCustomProxy()">
+              Test Proxy Endpoint
+            </button>
+            <span id="proxyStatusText" style="font-size:0.75rem; color:var(--slate-500); align-self:center;">No custom proxy configured (using public ReliefWeb India API).</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION C: CLEARLY SEPARATED SAMPLE / REFERENCE TRAINING ITEMS -->
+      <div style="padding-top:1.25rem; border-top:1px solid var(--slate-200);">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.75rem;">
+          <div>
+            <h3 style="font-size:0.95rem; font-weight:800; color:var(--amber-700);">
+              C. Separated Reference / Training Format Examples (NOT Live Alerts)
+            </h3>
+            <p style="font-size:0.75rem; color:var(--slate-600);">
+              Shown strictly to illustrate how State/District CAP &amp; River-Gauge fields look during monsoon exercises. Never presented as active events.
+            </p>
+          </div>
+          <label style="font-size:0.78rem; font-weight:700; color:var(--navy-900); display:flex; align-items:center; gap:0.4rem; cursor:pointer;">
+            <input type="checkbox" id="toggleShowSamples" checked onchange="window.ResQSimApp.renderFullAlertsView()" />
+            Show Training Format Samples
+          </label>
+        </div>
+
+        <div id="sampleAlertsContainer" class="alerts-compact-grid"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       VIEW 3: CITIZEN FLOOD REPORT FORM & RECENT LOCAL REPORTS
+       ======================================================================== -->
+  <section id="view-report" class="view-section container">
+    <div class="two-col-grid">
+
+      <!-- Left: Citizen Flood Report Form -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Citizen Flood Distress Report Form</div>
+            <div class="card-subtitle">Submit simulated citizen field data (stored locally in your browser as demo data)</div>
+          </div>
+          <span class="badge badge-pending">Unverified Citizen Input</span>
+        </div>
+
+        <div id="reportErrorAlert" class="alert alert-error"></div>
+        <div id="reportDupWarning" class="alert alert-warning"></div>
+        <div id="reportSuccessAlert" class="alert alert-success"></div>
+
+        <form id="citizenReportForm" onsubmit="window.ResQSimApp.submitCitizenReport(event)" novalidate>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label for="repName">Reporter Name (Optional Demo Data)</label>
+              <input id="repName" type="text" class="form-control" placeholder="e.g., Arjun Mehta (Demo)" />
+            </div>
+            <div class="form-group">
+              <label for="repContact">Contact Number (Optional Demo Data)</label>
+              <input id="repContact" type="text" class="form-control" placeholder="e.g., 98XXXXXXXX (Not transmitted)" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="repLocation">Location Name / Street Address *</label>
+            <input id="repLocation" type="text" class="form-control" placeholder="e.g., Sector 4 Lowlands Market Near Metro Pillar 42" required />
+          </div>
+
+          <!-- Offline Interactive Coordinate Map Picker -->
+          <div class="form-group">
+            <label>Interactive Flood-Sector Coordinate Picker (Click Grid or Enter Manually Below) *</label>
+            <div class="map-picker-box" id="svgMapPicker" onclick="window.ResQSimApp.handleMapGridClick(event)">
+              <svg id="reportMapSvg" viewBox="0 0 400 170" width="100%" height="170" style="display:block;">
+                <rect width="400" height="170" fill="#0a192f"/>
+                <g stroke="#1e293b" stroke-width="1">
+                  <line x1="80" y1="0" x2="80" y2="170"/><line x1="160" y1="0" x2="160" y2="170"/>
+                  <line x1="240" y1="0" x2="240" y2="170"/><line x1="320" y1="0" x2="320" y2="170"/>
+                  <line x1="0" y1="42" x2="400" y2="42"/><line x1="0" y1="85" x2="400" y2="85"/>
+                  <line x1="0" y1="127" x2="400" y2="127"/>
+                </g>
+                <path d="M 0,115 Q 130,65 240,100 T 400,55" fill="none" stroke="#0d9488" stroke-width="18" stroke-linecap="round" opacity="0.45"/>
+                <path d="M 0,115 Q 130,65 240,100 T 400,55" fill="none" stroke="#14b8a6" stroke-width="3" stroke-dasharray="6,4"/>
+                <text x="12" y="20" fill="#94a3b8" font-size="10" font-weight="bold">OFFLINE SECTOR GRID (28.50°N–28.75°N, 77.10°E–77.40°E)</text>
+                <text x="12" y="158" fill="#cbd5e1" font-size="10">Click anywhere on the sector map to set Latitude &amp; Longitude pin</text>
+                <g id="mapPinGroup" transform="translate(200, 85)">
+                  <circle cx="0" cy="0" r="10" fill="rgba(245, 158, 11, 0.35)"/>
+                  <circle cx="0" cy="0" r="5" fill="#f59e0b" stroke="#ffffff" stroke-width="1.5"/>
+                </g>
+              </svg>
+            </div>
+            <span class="help-text">
+              Note: Because this single-file prototype runs offline without third-party map API keys, clicking the grid above maps proportionally to demo urban coordinates, or you can type exact coordinates below.
+            </span>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label for="repLat">Latitude (-90 to 90) *</label>
+              <input id="repLat" type="number" step="0.0001" min="-90" max="90" value="28.6250" class="form-control" required />
+            </div>
+            <div class="form-group">
+              <label for="repLng">Longitude (-180 to 180) *</label>
+              <input id="repLng" type="number" step="0.0001" min="-180" max="180" value="77.2500" class="form-control" required />
+            </div>
+          </div>
+
+          <div class="form-grid-3">
+            <div class="form-group">
+              <label for="repPeople">People Affected *</label>
+              <input id="repPeople" type="number" min="1" max="5000" value="18" class="form-control" required />
+            </div>
+            <div class="form-group">
+              <label for="repDanger">Immediate Danger? *</label>
+              <select id="repDanger" class="form-control">
+                <option value="yes">Yes — Immediate Danger</option>
+                <option value="no">No — Stable for Now</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="repInjuries">Reported Injuries *</label>
+              <select id="repInjuries" class="form-control">
+                <option value="none">None Known</option>
+                <option value="suspected">Suspected Injuries</option>
+                <option value="confirmed">Confirmed (Unverified Claim)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label for="repSeverity">Reported Severity (1–5) *</label>
+              <select id="repSeverity" class="form-control">
+                <option value="1">1 — Minor Waterlogging</option>
+                <option value="2">2 — Moderate (Ground Floor Flooded)</option>
+                <option value="3">3 — Elevated (Marooned Residents)</option>
+                <option value="4" selected>4 — High Risk (Vulnerable Group)</option>
+                <option value="5">5 — Critical Life-Safety Threat</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="repPhoto">Optional Photo Attachment (Local Preview)</label>
+              <input id="repPhoto" type="file" accept="image/*" class="form-control" onchange="window.ResQSimApp.previewReportPhoto(event)" />
+            </div>
+          </div>
+
+          <div id="photoPreviewContainer" class="photo-preview-box">
+            <img id="photoPreviewImg" src="" alt="Attached flood preview" />
+            <div style="font-size: 0.75rem; color: var(--slate-600);">
+              <strong id="photoPreviewName">Attached Image</strong><br/>
+              <span>Previewed locally in browser memory only.</span>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 0.65rem;">
+            <label for="repDesc">Short Situation Description *</label>
+            <textarea id="repDesc" rows="2" class="form-control" placeholder="Describe water level, building access, elderly/children present..." required>Water level rising above 4 feet near ground-floor clinic entrance; families stranded on first-floor balcony.</textarea>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-top:1rem;">
+            <span style="font-size:0.74rem; color:var(--slate-500);">
+              Browser Timestamp: <strong id="liveFormClock">Generated on submit</strong>
+            </span>
+            <button type="submit" id="btnSubmitReport" class="btn btn-amber">
+              Submit Flood Report (Demo Local Save)
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Right: Submitted Demo Reports Feed -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Locally Stored Citizen Reports (<span id="reportFeedCount">0</span>)</div>
+            <div class="card-subtitle">Saved in <code>localStorage</code> • Persists across page refreshes</div>
+          </div>
+          <div style="display:flex; gap:0.4rem;">
+            <button type="button" class="btn btn-outline btn-sm" onclick="window.ResQSimApp.seedDefaultReports()">
+              ↻ Reset Sample Reports
+            </button>
+          </div>
+        </div>
+
+        <div style="background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius-sm); padding: 0.65rem 0.85rem; margin-bottom: 1rem; font-size: 0.75rem; color: var(--slate-600);">
+          <strong>Verification Distinction:</strong> All newly submitted reports enter as <span class="badge badge-pending">Pending (Unverified)</span>. Matching locations submitted within 60 minutes trigger a <strong>⚠️ Potential Duplicate</strong> warning rather than being silently discarded.
+        </div>
+
+        <div id="citizenReportFeed" style="display:flex; flex-direction:column; gap:0.75rem; max-height: 560px; overflow-y: auto;"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       VIEW 4: COORDINATOR DASHBOARD & VERIFICATION WORKSPACE
+       ======================================================================== -->
+  <section id="view-coordinator" class="view-section container">
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Emergency Coordinator Triage &amp; Verification Dashboard</div>
+          <div class="card-subtitle">Human-in-the-loop verification: review citizen reports, record notes, and send verified incidents to the simulator</div>
+        </div>
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+          <button type="button" class="btn btn-teal" onclick="window.ResQSimApp.loadVerifiedIntoSimulator()">
+            🚤 Push Verified Reports to Simulator →
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter Bar & Spatial Overview -->
+      <div class="two-col-grid" style="margin-bottom: 1.25rem;">
+        <div class="form-grid-3" style="background: var(--slate-50); padding: 0.9rem; border-radius: var(--radius-md); border: 1px solid var(--slate-200);">
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="filterStatus">Filter by Verification Status</label>
+            <select id="filterStatus" class="form-control" onchange="window.ResQSimApp.renderCoordinatorDashboard()">
+              <option value="ALL">All Statuses</option>
+              <option value="Pending">Pending (Unverified)</option>
+              <option value="Under Review">Under Review</option>
+              <option value="Verified">Verified Only</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="filterUrgency">Filter by Urgency / Danger</label>
+            <select id="filterUrgency" class="form-control" onchange="window.ResQSimApp.renderCoordinatorDashboard()">
+              <option value="ALL">All Urgency Levels</option>
+              <option value="DANGER">Immediate Danger = Yes</option>
+              <option value="HIGH_SEV">High Severity (4–5)</option>
+              <option value="DUPLICATES">Flagged Potential Duplicates</option>
+            </select>
+          </div>
+          <div style="display:flex; flex-direction:column; justify-content:center; font-size:0.76rem; color:var(--slate-600);">
+            <div id="coordSummaryStats">Showing all reports</div>
+          </div>
+        </div>
+
+        <!-- Coordinator Spatial Pin Map -->
+        <div style="background: var(--navy-950); border-radius: var(--radius-md); padding: 0.65rem; border: 1px solid var(--slate-300);">
+          <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--slate-300); margin-bottom:0.3rem;">
+            <span><strong>REPORTED LOCATIONS PLOT</strong> (Offline Spatial Sector View)</span>
+            <span>🟠 Pending/Review &nbsp; 🟢 Verified &nbsp; ⚪ Rejected</span>
+          </div>
+          <svg id="coordMapSvg" viewBox="0 0 420 110" width="100%" height="110" style="display:block; background:#0a192f; border-radius:4px;"></svg>
+        </div>
+      </div>
+
+      <!-- Coordinator Reports Table -->
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Report ID &amp; Time</th>
+              <th>Location &amp; Coordinates</th>
+              <th>Citizen Claim (Unverified)</th>
+              <th>Verification Status</th>
+              <th>Coordinator Review Notes &amp; Actions</th>
+            </tr>
+          </thead>
+          <tbody id="coordTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       VIEW 5: RESOURCE PLANNING & DETERMINISTIC SIMULATION ENGINE
+       ======================================================================== -->
+  <section id="view-simulator" class="view-section container">
+
+    <!-- Top Simulator Action Bar -->
+    <div class="card" style="margin-bottom: 1.5rem; background: var(--navy-900); color: var(--white); border: none;">
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
+        <div>
+          <span class="badge badge-teal" style="background:rgba(20,184,166,0.2); color:var(--teal-100); border-color:var(--teal-500);">DETERMINISTIC ENGINE v3.1</span>
+          <h2 style="font-size: 1.3rem; font-weight: 800; margin-top: 0.25rem;">Resource Allocation &amp; Route-Aware Flood Dispatch Simulator</h2>
+          <p style="font-size: 0.82rem; color: var(--slate-300);">
+            Modify fleet size, capacity, route status, or affected people below, then click <strong>Run Simulation ▶</strong> to recalculate.
+          </p>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:0.65rem;">
+          <button type="button" id="btnLoadSample" class="btn btn-teal" onclick="window.ResQSimApp.loadSampleScenario()">
+            ↻ Load Sample Scenario (Expected Test Case)
+          </button>
+          <button type="button" id="btnRunSimulation" class="btn btn-amber" onclick="window.ResQSimApp.runSimulation('Manual Run Triggered')">
+            Run Simulation ▶
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Validation Error Banner & Live Calculation Status -->
+    <div id="simErrorBanner" class="alert alert-error"></div>
+    <div id="simStatusBanner" class="alert alert-success show" style="display:flex; justify-content:space-between; align-items:center;">
+      <span id="simStatusMsg">✔ Deterministic simulation ready.</span>
+      <span id="simRunCounter" style="font-size:0.74rem; font-weight:800;">Run #1</span>
+    </div>
+
+    <div class="sim-layout-grid">
+
+      <!-- LEFT COLUMN: FLEET, ROUTE & ZONE CONFIGURATION -->
+      <div style="display:flex; flex-direction:column; gap:1.25rem;">
+
+        <!-- 1. Fleet Configuration Card -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">1. Rescue Fleet &amp; Operational Window</div>
+              <div class="card-subtitle">Each boat tracks its own discrete clock + 10 min loading/unloading turnaround per trip</div>
+            </div>
+            <span class="badge badge-navy">Fleet Rules</span>
+          </div>
+
+          <div class="form-grid-3">
+            <div class="form-group" style="margin-bottom:0;">
+              <label for="simBoatCount">Available Boats *</label>
+              <input id="simBoatCount" type="number" min="1" max="25" value="2" class="form-control" />
+              <span class="help-text">Valid: 1 to 25 boats</span>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label for="simBoatCap">Boat Capacity (Pax) *</label>
+              <input id="simBoatCap" type="number" min="2" max="60" value="12" class="form-control" />
+              <span class="help-text">2 to 60 people/trip</span>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label for="simTimeWindow">Operating Window (Mins) *</label>
+              <input id="simTimeWindow" type="number" min="30" max="720" value="180" class="form-control" />
+              <span class="help-text">30 to 720 mins</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Flood Zones & Route Status Card -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">2. Affected Flood Zones &amp; Route Status (2–5 Zones)</div>
+              <div class="card-subtitle">Route status is manually supplied planning data that adjusts effective travel time</div>
+            </div>
+            <button type="button" id="btnAddZone" class="btn btn-navy btn-sm" onclick="window.ResQSimApp.addSimZone()">
+              + Add Zone
+            </button>
+          </div>
+
+          <div id="simZonesContainer"></div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; padding-top:0.65rem; border-top:1px solid var(--slate-100); font-size:0.75rem; color:var(--slate-600);">
+            <span id="simZoneCountLabel">3 / 5 Zones Active</span>
+            <button type="button" class="btn btn-amber btn-sm" onclick="window.ResQSimApp.runSimulation('Recalculated from current form inputs')">
+              ↻ Recalculate &amp; Run Simulation ▶
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. Reproducible Benchmark Verification Card -->
+        <div class="card" style="background: var(--slate-50);">
+          <div class="card-header" style="padding-bottom:0.5rem; margin-bottom:0.6rem;">
+            <div class="card-title" style="font-size:0.88rem;">Reproducible Sample Scenario Expected Results (Benchmark Check)</div>
+            <span class="badge badge-teal">Self-Test Reference</span>
+          </div>
+          <p style="font-size:0.76rem; color:var(--slate-600); margin-bottom:0.5rem;">
+            When you click <strong>Load Sample Scenario</strong> (2 boats, 12 pax/boat, 180m window, 3 zones totaling <strong>114 people</strong>, Clear routes), the deterministic engine produces:
+          </p>
+          <ul style="font-size:0.75rem; color:var(--slate-700); padding-left:1.1rem; line-height:1.6;">
+            <li><strong>Strategy A (Nearest-First):</strong> <strong>78 people reached (68%)</strong>, 36 unmet, <strong>30 / 66 critical reached (45%)</strong>, 7 total trips (Hospital receives 0 boats).</li>
+            <li><strong>Strategy B (Severity-Weighted):</strong> <strong>66 people reached (58%)</strong>, 48 unmet, <strong>66 / 66 critical reached (100%)</strong>, 6 total trips (Hospital &amp; Shelter 100% cleared).</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN: STRATEGY COMPARISON, CHARTS & EXPLANATIONS -->
+      <div id="simResultsPanel" style="display:flex; flex-direction:column; gap:1.25rem;">
+
+        <!-- Strategy A vs Strategy B KPI Cards -->
+        <div class="form-grid-2">
+          <div class="card" style="border-top: 4px solid var(--navy-800);">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <div>
+                <span style="font-size:0.68rem; font-weight:800; text-transform:uppercase; color:var(--slate-500);">Strategy A (Proximity)</span>
+                <h3 style="font-size:1rem; font-weight:800; color:var(--navy-900);">Nearest-First Dispatch</h3>
+              </div>
+              <span class="badge badge-navy">Min Effective Travel</span>
+            </div>
+            <p style="font-size:0.75rem; color:var(--slate-600); margin:0.35rem 0 0.85rem;">
+              Prioritizes reachable flood zones with the shortest route-adjusted travel time first.
+            </p>
+            <div class="form-grid-3" style="text-align:center; padding-top:0.75rem; border-top:1px solid var(--slate-100);">
+              <div>
+                <div style="font-size:0.68rem; color:var(--slate-500); font-weight:600;">People Reached</div>
+                <div id="resA_reached" style="font-size:1.1rem; font-weight:900; color:var(--navy-900);">—</div>
+              </div>
+              <div>
+                <div style="font-size:0.68rem; color:var(--slate-500); font-weight:600;">Unmet Demand</div>
+                <div id="resA_unmet" style="font-size:1.1rem; font-weight:900; color:var(--amber-600);">—</div>
+              </div>
+              <div>
+                <div style="font-size:0.68rem; color:var(--slate-500); font-weight:600;">Avg 1st Boat</div>
+                <div id="resA_arrival" style="font-size:1.1rem; font-weight:900; color:var(--navy-900);">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="border-top: 4px solid var(--teal-600);">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <div>
+                <span style="font-size:0.68rem; font-weight:800; text-transform:uppercase; color:var(--teal-700);">Strategy B (Triage)</span>
+                <h3 style="font-size:1rem; font-weight:800; color:var(--navy-900);">Severity-Weighted Triage</h3>
+              </div>
+              <span class="badge badge-teal">Severity² / Travel</span>
+            </div>
+            <p style="font-size:0.75rem; color:var(--slate-600); margin:0.35rem 0 0.85rem;">
+              Prioritizes high-severity zones while factoring in route-adjusted travel time &amp; boat capacity.
+            </p>
+            <div class="form-grid-3" style="text-align:center; padding-top:0.75rem; border-top:1px solid var(--slate-100);">
+              <div>
+                <div style="font-size:0.68rem; color:var(--slate-500); font-weight:600;">People Reached</div>
+                <div id="resB_reached" style="font-size:1.1rem; font-weight:900; color:var(--teal-700);">—</div>
+              </div>
+              <div>
+                <div style="font-size:0.68rem; color:var(--slate-500); font-weight:600;">Unmet Demand</div>
+                <div id="resB_unmet" style="font-size:1.1rem; font-weight:900; color:var(--amber-600);">—</div>
+              </div>
+              <div>
+                <div style="font-size:0.68rem; color:var(--slate-500); font-weight:600;">Avg 1st Boat</div>
+                <div id="resB_arrival" style="font-size:1.1rem; font-weight:900; color:var(--teal-700);">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visual Comparison Bar Charts -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Visual Strategy Comparison (Simulated Estimates)</div>
+              <div class="card-subtitle">Real-time bar charts computed from current inputs</div>
+            </div>
+            <span class="badge badge-pending">Simulated Output</span>
+          </div>
+          <div id="simChartsContainer"></div>
+        </div>
+
+        <!-- Assumptions & Trade-Off Explanation Card -->
+        <div class="card" style="background: var(--navy-900); color: var(--white);">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.65rem;">
+            <strong style="font-size:0.9rem; color:var(--amber-500);">ASSUMPTIONS &amp; WHY STRATEGIES DIFFERED</strong>
+            <span style="font-size:0.7rem; color:var(--slate-300);">10m Boarding Buffer | Discrete Boat Clocks</span>
+          </div>
+          <ul id="simExplanationList" style="font-size:0.8rem; color:var(--slate-200); padding-left:1.1rem; display:flex; flex-direction:column; gap:0.45rem;"></ul>
+        </div>
+
+        <!-- Side-by-Side Comparison Table -->
+        <div class="card" style="padding:0; overflow:hidden;">
+          <div style="padding:1rem 1.25rem; border-bottom:1px solid var(--slate-100);">
+            <div class="card-title">Side-by-Side Strategy Metrics</div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Metric (Simulated Estimate)</th>
+                  <th>Strategy A (Nearest-First)</th>
+                  <th style="color:var(--teal-700);">Strategy B (Severity-Weighted)</th>
+                </tr>
+              </thead>
+              <tbody id="simComparisonBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Zone-Level Dispatch Breakdown -->
+        <div class="card" style="padding:0; overflow:hidden;">
+          <div style="padding:1rem 1.25rem; border-bottom:1px solid var(--slate-100);">
+            <div class="card-title">Zone-by-Zone Evacuation &amp; Route Breakdown</div>
+            <div class="card-subtitle">Shows effective travel time after applying manual route-status multipliers</div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Zone, Severity &amp; Route Status</th>
+                  <th>Demand</th>
+                  <th>Strategy A Outcome</th>
+                  <th style="color:var(--teal-700);">Strategy B Outcome</th>
+                </tr>
+              </thead>
+              <tbody id="simZoneBreakdownBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div style="max-width:1320px; margin:0 auto; display:flex; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
+      <div>
+        <strong style="color:var(--white);">ResQSim v3.1 — Emergency Response Decision Simulator</strong><br/>
+        <span>Academic Prototype • Official Indian Disaster Links, Live Public API Feed, Citizen Intake &amp; Deterministic Dispatch</span>
+      </div>
+      <div>
+        <span>Sample items are strictly separated from live feeds • Not an operational emergency service</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================================================
+       JAVASCRIPT: LIVE DISASTER UPDATER + CITIZEN INTAKE + SIMULATOR ENGINE
+       ======================================================================== -->
+  <script>
+    (function () {
+      "use strict";
+
+      /* ======================================================================
+         1. SAFE STORAGE WRAPPER (Handles Chrome file:// restrictions gracefully)
+         ====================================================================== */
+      const STORAGE_KEY = "resqsim_demo_reports_v3";
+      let memoryFallbackReports = null;
+
+      function loadReportsFromStorage() {
+        try {
+          const raw = window.localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              return parsed;
+            }
+          }
+        } catch (err) {
+          console.warn("localStorage unavailable under current browser mode; using in-memory store.", err);
+        }
+        return memoryFallbackReports || getDefaultSeedReports();
+      }
+
+      function saveReportsToStorage(reportsArray) {
+        memoryFallbackReports = reportsArray;
+        try {
+          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(reportsArray));
+        } catch (err) {
+          console.warn("Saved to in-memory store (localStorage blocked).", err);
+        }
+      }
+
+      function getDefaultSeedReports() {
+        return [
+          {
+            id: "RPT-1001",
+            reporterName: "Rohan Verma (Demo)",
+            contact: "98100XXXXX",
+            location: "Submerged District Hospital",
+            lat: 28.6420,
+            lng: 77.2190,
+            people: 36,
+            immediateDanger: "yes",
+            injuries: "confirmed",
+            severity: 5,
+            description: "Ground floor ICU generator room flooded; 36 patients awaiting boat evacuation.",
+            timestamp: "2026-10-23 09:15:00",
+            epochMs: 1761200000000,
+            status: "Verified",
+            coordinatorNotes: "Verified via hospital nodal officer call. Priority life-safety zone.",
+            isDuplicateFlag: false,
+            photoDataUrl: null
+          },
+          {
+            id: "RPT-1002",
+            reporterName: "Meena Sharma (Demo)",
+            contact: "98200XXXXX",
+            location: "Riverbank Elderly Shelter",
+            lat: 28.6180,
+            lng: 77.2710,
+            people: 30,
+            immediateDanger: "yes",
+            injuries: "suspected",
+            severity: 4,
+            description: "Water entered courtyard; 30 senior citizens unable to climb to roof.",
+            timestamp: "2026-10-23 09:28:00",
+            epochMs: 1761200780000,
+            status: "Verified",
+            coordinatorNotes: "Confirmed by ward warden. Access road obstructed by debris.",
+            isDuplicateFlag: false,
+            photoDataUrl: null
+          },
+          {
+            id: "RPT-1003",
+            reporterName: "Anonymous Citizen (Demo)",
+            contact: "Not provided",
+            location: "Sector 4 Lowlands (Market)",
+            lat: 28.5890,
+            lng: 77.2410,
+            people: 48,
+            immediateDanger: "no",
+            injuries: "none",
+            severity: 2,
+            description: "Shopkeepers and commuters stranded on upper market terrace.",
+            timestamp: "2026-10-23 09:40:00",
+            epochMs: 1761201500000,
+            status: "Under Review",
+            coordinatorNotes: "Awaiting ward patrol confirmation of exact headcount.",
+            isDuplicateFlag: false,
+            photoDataUrl: null
+          }
+        ];
+      }
+
+      /* ======================================================================
+         2. LIVE DISASTER UPDATES MODULE (Real Public API + Separated Samples)
+         ====================================================================== */
+      // Clearly labeled static training format examples — NEVER mixed with live API data
+      const TRAINING_SAMPLE_ALERTS = [
+        {
+          id: "SAMPLE-CAP-01",
+          isSample: true,
+          stateDistrict: "Bihar — Supaul, Saharsa & Darbhanga (Kosi Basin)",
+          hazardType: "Flood",
+          severity: "Orange Alert — Rising River Stage (Training Format Sample)",
+          sourceName: "Bihar FMISC / WRD BEAMS (Sample Format)",
+          sourceTime: "Sample Reference Timestamp (Not Live)",
+          sourceUrl: "https://beams.fmiscwrdbihar.gov.in/Alerttotalinfo/realtimetotal.aspx"
+        },
+        {
+          id: "SAMPLE-CAP-02",
+          isSample: true,
+          stateDistrict: "Odisha & Coastal Andhra Pradesh",
+          hazardType: "Cyclone",
+          severity: "Red Warning — Cyclone Preparedness (Training Format Sample)",
+          sourceName: "IMD Mausam Bulletin (Sample Format)",
+          sourceTime: "Sample Reference Timestamp (Not Live)",
+          sourceUrl: "https://mausam.imd.gov.in/"
+        },
+        {
+          id: "SAMPLE-CAP-03",
+          isSample: true,
+          stateDistrict: "Assam — Kaziranga, Dhemaji & Lakhimpur",
+          hazardType: "Heavy Rain",
+          severity: "Orange Alert — Brahmaputra Tributary Inflow (Training Format Sample)",
+          sourceName: "NDMA SACHET CAP (Sample Format)",
+          sourceTime: "Sample Reference Timestamp (Not Live)",
+          sourceUrl: "https://sachet.ndma.gov.in/"
+        }
+      ];
+
+      const LiveDisasterService = {
+        liveItems: [],
+        lastCheckedBrowserTime: "Never",
+        latestSourceUpdateTime: "None",
+        fetchError: null,
+        isFetching: false,
+
+        /**
+         * Fetches real India disaster records from ReliefWeb UN OCHA Public API
+         * (Supports CORS `Access-Control-Allow-Origin: *` in standard browsers).
+         * Never fabricates fallback records if the request fails.
+         */
+        fetchIndiaDisasters: async function () {
+          this.isFetching = true;
+          this.fetchError = null;
+          this.lastCheckedBrowserTime = formatNowTimestamp();
+
+          const controller = new AbortController();
+          const timeoutId = setTimeout(function () { controller.abort(); }, 8000);
+
+          // Query ReliefWeb v1 API for India disasters
+          const endpoint =
+            "https://api.reliefweb.int/v1/disasters?appname=resqsim-college-mvp" +
+            "&filter[field]=country.name&filter[value]=India" +
+            "&limit=6&sort[]=date:desc" +
+            "&fields[include][]=name&fields[include][]=status&fields[include][]=date.created" +
+            "&fields[include][]=date.changed&fields[include][]=primary_type.name&fields[include][]=url";
+
+          try {
+            const response = await fetch(endpoint, {
+              method: "GET",
+              headers: { "Accept": "application/json" },
+              signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+              throw new Error("HTTP " + response.status + " from ReliefWeb API");
+            }
+
+            const json = await response.json();
+            const rawData = (json && Array.isArray(json.data)) ? json.data : [];
+
+            this.liveItems = rawData.map(function (item) {
+              const fields = item.fields || {};
+              const rawName = fields.name || "India Disaster Event";
+              const typeObj = fields.primary_type || {};
+              const hazardName = typeObj.name || "Flood / Severe Weather";
+              const statusStr = fields.status || "Official Record";
+              const dateObj = fields.date || {};
+              const pubIso = dateObj.changed || dateObj.created || null;
+              const formattedSourceDate = pubIso ? pubIso.replace("T", " ").substring(0, 19) + " UTC" : "Official Archive Date";
+
+              // Extract state/region if mentioned in official title
+              let regionLabel = "India (Multi-State / National)";
+              const colonIdx = rawName.indexOf(":");
+              if (colonIdx !== -1 && colonIdx < 45) {
+                regionLabel = rawName.substring(0, colonIdx).trim();
+              }
+
+              return {
+                id: "RW-" + item.id,
+                isSample: false,
+                title: rawName,
+                stateDistrict: regionLabel,
+                hazardType: hazardName,
+                severity: "Official Status: " + statusStr.toUpperCase(),
+                sourceName: "ReliefWeb / UN OCHA India Disasters API",
+                sourceTime: formattedSourceDate,
+                sourceUrl: fields.url || "https://reliefweb.int/country/ind"
+              };
+            });
+
+            if (this.liveItems.length > 0) {
+              this.latestSourceUpdateTime = this.liveItems[0].sourceTime;
+            } else {
+              this.latestSourceUpdateTime = "No active records returned";
+            }
+          } catch (err) {
+            clearTimeout(timeoutId);
+            this.liveItems = [];
+            this.latestSourceUpdateTime = "Unavailable";
+            this.fetchError =
+              "Live API feed unavailable (" + (err && err.message ? err.message : "Network/CORS restriction") +
+              "). If you are offline or your network restricts external API requests, use the direct official NDMA SACHET, IMD, and Bihar BEAMS links above.";
+          } finally {
+            this.isFetching = false;
+          }
+        }
+      };
+
+      /* ======================================================================
+         3. DETERMINISTIC SIMULATION ENGINE (Unchanged Verified Math)
+         ====================================================================== */
+      const SimulationEngine = {
+        BOARDING_BUFFER_MINS: 10,
+
+        ROUTE_MULTIPLIERS: {
+          "CLEAR":      { factor: 1.0,  label: "Clear Water/Road Route (1.0x)" },
+          "OBSTRUCTED": { factor: 1.25, label: "Debris / Strong Current (+25% travel time)" },
+          "FLOODED":    { factor: 1.5,  label: "Severely Obstructed / Detour (+50% travel time)" },
+          "BLOCKED":    { factor: Infinity, label: "Impassable / Blocked (Unreachable)" }
+        },
+
+        validateScenario: function (config) {
+          const errors = [];
+          if (!config || !Array.isArray(config.zones)) {
+            errors.push("Scenario zone list is missing.");
+            return { isValid: false, errors: errors };
+          }
+          if (config.zones.length < 2 || config.zones.length > 5) {
+            errors.push("Scenario must contain between 2 and 5 flood zones.");
+          }
+          if (!Number.isInteger(config.boatCount) || config.boatCount < 1 || config.boatCount > 25) {
+            errors.push("Available Rescue Boats must be a whole number between 1 and 25 (cannot be 0 or negative).");
+          }
+          if (!Number.isInteger(config.boatCapacity) || config.boatCapacity < 2 || config.boatCapacity > 60) {
+            errors.push("Boat Capacity must be between 2 and 60 passengers per trip.");
+          }
+          if (!Number.isInteger(config.timeHorizon) || config.timeHorizon < 30 || config.timeHorizon > 720) {
+            errors.push("Operating Window must be between 30 and 720 minutes.");
+          }
+
+          config.zones.forEach(function (z, i) {
+            const label = z.name && z.name.trim() ? z.name.trim() : "Zone #" + (i + 1);
+            if (!z.name || z.name.trim() === "") {
+              errors.push("Zone #" + (i + 1) + ": Location name cannot be empty.");
+            }
+            if (!Number.isInteger(z.people) || z.people < 1 || z.people > 5000) {
+              errors.push(label + ": Affected people must be an integer between 1 and 5,000.");
+            }
+            if (!Number.isInteger(z.baseTravelTime) || z.baseTravelTime < 5 || z.baseTravelTime > 240) {
+              errors.push(label + ": Base 1-way travel time must be between 5 and 240 minutes.");
+            }
+            if (!Number.isInteger(z.severity) || z.severity < 1 || z.severity > 5) {
+              errors.push(label + ": Severity must be between 1 and 5.");
+            }
+          });
+
+          return {
+            isValid: errors.length === 0,
+            errors: errors
+          };
+        },
+
+        computeEffectiveTravel: function (baseTravelTime, routeStatus) {
+          const entry = this.ROUTE_MULTIPLIERS[routeStatus] || this.ROUTE_MULTIPLIERS.CLEAR;
+          if (!Number.isFinite(entry.factor)) return Infinity;
+          return Math.round(baseTravelTime * entry.factor);
+        },
+
+        computeScore: function (effectiveTravel, severity, strategyType) {
+          if (!Number.isFinite(effectiveTravel)) return -1;
+          if (strategyType === "NEAREST") {
+            return (1000 - effectiveTravel) + (severity * 0.1);
+          } else {
+            return (Math.pow(severity, 2) * 100) / (effectiveTravel + this.BOARDING_BUFFER_MINS);
+          }
+        },
+
+        runStrategy: function (config, strategyType) {
+          const self = this;
+          const boatCount = config.boatCount;
+          const boatCapacity = config.boatCapacity;
+          const timeHorizon = config.timeHorizon;
+
+          const zones = config.zones.map(function (z, idx) {
+            const effTravel = self.computeEffectiveTravel(z.baseTravelTime, z.routeStatus);
+            return {
+              id: idx,
+              name: z.name.trim(),
+              initialPeople: z.people,
+              remainingPeople: z.people,
+              rescuedPeople: 0,
+              baseTravelTime: z.baseTravelTime,
+              routeStatus: z.routeStatus || "CLEAR",
+              effectiveTravelTime: effTravel,
+              severity: z.severity,
+              firstArrivalTime: null,
+              tripsReceived: 0,
+              score: self.computeScore(effTravel, z.severity, strategyType)
+            };
+          });
+
+          const boats = [];
+          for (let b = 0; b < boatCount; b++) {
+            boats.push({
+              boatId: b + 1,
+              elapsedTime: 0,
+              trips: 0
+            });
+          }
+
+          let totalTrips = 0;
+          let guard = 0;
+
+          while (guard < 5000) {
+            guard++;
+            boats.sort(function (a, b) {
+              return (a.elapsedTime - b.elapsedTime) || (a.boatId - b.boatId);
+            });
+            const boat = boats[0];
+
+            const candidates = zones.filter(function (z) {
+              return (
+                z.remainingPeople > 0 &&
+                Number.isFinite(z.effectiveTravelTime) &&
+                (boat.elapsedTime + z.effectiveTravelTime) <= timeHorizon
+              );
+            });
+
+            if (candidates.length === 0) break;
+
+            candidates.sort(function (a, b) {
+              if (Math.abs(b.score - a.score) > 0.0001) return b.score - a.score;
+              return b.remainingPeople - a.remainingPeople;
+            });
+
+            const target = candidates[0];
+            const depart = boat.elapsedTime;
+            const arrive = depart + target.effectiveTravelTime;
+            const rescued = Math.min(boatCapacity, target.remainingPeople);
+            const roundTrip = (target.effectiveTravelTime * 2) + self.BOARDING_BUFFER_MINS;
+
+            if (target.firstArrivalTime === null || arrive < target.firstArrivalTime) {
+              target.firstArrivalTime = arrive;
+            }
+            target.remainingPeople -= rescued;
+            target.rescuedPeople += rescued;
+            target.tripsReceived += 1;
+
+            boat.elapsedTime = depart + roundTrip;
+            boat.trips += 1;
+            totalTrips += 1;
+          }
+
+          const totalDemand = zones.reduce(function (s, z) { return s + z.initialPeople; }, 0);
+          const totalRescued = zones.reduce(function (s, z) { return s + z.rescuedPeople; }, 0);
+          const unmetDemand = totalDemand - totalRescued;
+
+          const critZones = zones.filter(function (z) { return z.severity >= 4; });
+          const critDemand = critZones.reduce(function (s, z) { return s + z.initialPeople; }, 0);
+          const critRescued = critZones.reduce(function (s, z) { return s + z.rescuedPeople; }, 0);
+
+          const reachedZones = zones.filter(function (z) { return z.rescuedPeople > 0; });
+          const clearedZones = zones.filter(function (z) { return z.remainingPeople === 0; }).length;
+
+          const avgFirstArrival = reachedZones.length > 0
+            ? Math.round(reachedZones.reduce(function (s, z) { return s + z.firstArrivalTime; }, 0) / reachedZones.length)
+            : null;
+
+          const critReached = critZones.filter(function (z) { return z.firstArrivalTime !== null; });
+          const avgCritArrival = critReached.length > 0
+            ? Math.round(critReached.reduce(function (s, z) { return s + z.firstArrivalTime; }, 0) / critReached.length)
+            : null;
+
+          const availableMins = boatCount * timeHorizon;
+          const usedMins = boats.reduce(function (s, b) { return s + Math.min(b.elapsedTime, timeHorizon); }, 0);
+          const utilizationPct = availableMins > 0 ? Math.min(100, Math.round((usedMins / availableMins) * 100)) : 0;
+
+          return {
+            totalDemand: totalDemand,
+            totalRescued: totalRescued,
+            rescuedPct: totalDemand > 0 ? Math.round((totalRescued / totalDemand) * 100) : 0,
+            unmetDemand: unmetDemand,
+            critDemand: critDemand,
+            critRescued: critRescued,
+            critRescuedPct: critDemand > 0 ? Math.round((critRescued / critDemand) * 100) : 0,
+            zonesReached: reachedZones.length,
+            totalZones: zones.length,
+            clearedZones: clearedZones,
+            avgFirstArrival: avgFirstArrival,
+            avgCritArrival: avgCritArrival,
+            utilizationPct: utilizationPct,
+            totalTrips: totalTrips,
+            zones: zones
+          };
+        }
+      };
+
+      /* ======================================================================
+         4. APPLICATION STATE & UI RENDERING CONTROLLER
+         ====================================================================== */
+      const SAMPLE_SCENARIO = {
+        boatCount: 2,
+        boatCapacity: 12,
+        timeHorizon: 180,
+        zones: [
+          { name: "Sector 4 Lowlands (Market)", people: 48, baseTravelTime: 15, severity: 2, routeStatus: "CLEAR" },
+          { name: "Submerged District Hospital", people: 36, baseTravelTime: 35, severity: 5, routeStatus: "CLEAR" },
+          { name: "Riverbank Elderly Shelter", people: 30, baseTravelTime: 25, severity: 4, routeStatus: "CLEAR" }
+        ]
+      };
+
+      let reportsList = loadReportsFromStorage();
+      let simZonesState = [];
+      let simRunCount = 0;
+      let currentPhotoDataUrl = null;
+
+      function escapeHtml(str) {
+        return String(str || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function formatNowTimestamp() {
+        const d = new Date();
+        const pad = function (n) { return n < 10 ? "0" + n : "" + n; };
+        return (
+          d.getFullYear() + "-" +
+          pad(d.getMonth() + 1) + "-" +
+          pad(d.getDate()) + " " +
+          pad(d.getHours()) + ":" +
+          pad(d.getMinutes()) + ":" +
+          pad(d.getSeconds())
+        );
+      }
+
+      /* ----------------------------------------------------------------------
+         LIVE DISASTER UPDATES RENDERING (Compact & Full View)
+         ---------------------------------------------------------------------- */
+      function buildDisasterCardHtml(item) {
+        const badgeHtml = item.isSample
+          ? '<span class="badge badge-pending">TRAINING SAMPLE — NOT LIVE</span>'
+          : '<span class="badge badge-verified">✔ VERIFIED LIVE API RECORD</span>';
+
+        const cardClass = item.isSample ? "disaster-item-card sample-card" : "disaster-item-card";
+
+        return (
+          '<div class="' + cardClass + '">' +
+            '<div>' +
+              '<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.4rem; margin-bottom:0.35rem;">' +
+                '<span class="badge badge-navy">' + escapeHtml(item.hazardType) + '</span>' +
+                badgeHtml +
+              '</div>' +
+              '<div style="font-size:0.86rem; font-weight:800; color:var(--navy-900); margin-bottom:0.25rem;">' +
+                escapeHtml(item.title || item.stateDistrict) +
+              '</div>' +
+              '<div style="font-size:0.75rem; color:var(--slate-700); margin-bottom:0.2rem;">' +
+                '<strong>Region / State:</strong> ' + escapeHtml(item.stateDistrict) +
+              '</div>' +
+              '<div style="font-size:0.75rem; color:var(--amber-700); font-weight:700; margin-bottom:0.25rem;">' +
+                escapeHtml(item.severity) +
+              '</div>' +
+            '</div>' +
+            '<div style="padding-top:0.45rem; border-top:1px solid rgba(15,23,42,0.08); font-size:0.72rem; color:var(--slate-500); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.35rem;">' +
+              '<div>' +
+                '<strong>Source:</strong> ' + escapeHtml(item.sourceName) + '<br/>' +
+                '<strong>Source Time:</strong> ' + escapeHtml(item.sourceTime) +
+              '</div>' +
+              '<a href="' + escapeHtml(item.sourceUrl) + '" target="_blank" rel="noopener noreferrer" class="portal-link">Source Link ↗</a>' +
+            '</div>' +
+          '</div>'
+        );
+      }
+
+      function renderCompactLivePanel() {
+        const lastCheckedEl = document.getElementById("compactLastChecked");
+        const sourceTimeEl = document.getElementById("compactSourceTime");
+        const statusBadgeEl = document.getElementById("compactFeedStatusBadge");
+        const dotEl = document.getElementById("compactLiveDot");
+        const errBox = document.getElementById("compactLiveErrorBox");
+        const gridEl = document.getElementById("compactLiveItemsGrid");
+
+        if (lastCheckedEl) lastCheckedEl.textContent = LiveDisasterService.lastCheckedBrowserTime;
+        if (sourceTimeEl) sourceTimeEl.textContent = LiveDisasterService.latestSourceUpdateTime;
+
+        if (LiveDisasterService.isFetching) {
+          if (statusBadgeEl) {
+            statusBadgeEl.className = "badge badge-review";
+            statusBadgeEl.textContent = "Refreshing Live Feed...";
+          }
+          return;
+        }
+
+        if (LiveDisasterService.fetchError) {
+          if (dotEl) dotEl.className = "live-dot amber";
+          if (statusBadgeEl) {
+            statusBadgeEl.className = "badge badge-pending";
+            statusBadgeEl.textContent = "Live API Feed Unavailable";
+          }
+          if (errBox) {
+            errBox.innerHTML = "⚠️ <strong>Live Feed Status:</strong> " + escapeHtml(LiveDisasterService.fetchError);
+            errBox.classList.add("show");
+          }
+          if (gridEl) {
+            gridEl.innerHTML =
+              '<div style="grid-column: 1 / -1; font-size:0.78rem; color:var(--slate-600); background:var(--slate-50); padding:0.75rem; border-radius:6px; border:1px solid var(--slate-200);">' +
+                'No fabricated live alerts are shown when the live API is unreachable. Use the official <strong>NDMA SACHET</strong>, <strong>IMD Mausam</strong>, and <strong>Bihar BEAMS</strong> links above, or open the <a href="javascript:void(0)" onclick="window.ResQSimApp.switchView(\'alerts\')" style="color:var(--teal-700);font-weight:700;">Full Alerts View</a> to inspect training format samples.' +
+              '</div>';
+          }
+          return;
+        }
+
+        if (errBox) errBox.classList.remove("show");
+        if (dotEl) dotEl.className = "live-dot";
+        if (statusBadgeEl) {
+          statusBadgeEl.className = "badge badge-verified";
+          statusBadgeEl.textContent = "Live Feed Connected (" + LiveDisasterService.liveItems.length + " records)";
+        }
+
+        if (gridEl) {
+          const topThree = LiveDisasterService.liveItems.slice(0, 3);
+          if (topThree.length === 0) {
+            gridEl.innerHTML = '<div style="font-size:0.8rem; color:var(--slate-500);">No active disaster entries returned by API.</div>';
+          } else {
+            gridEl.innerHTML = topThree.map(buildDisasterCardHtml).join("");
+          }
+        }
+      }
+
+      function renderFullAlertsView() {
+        const lastCheckedEl = document.getElementById("fullLastChecked");
+        const sourceUpdEl = document.getElementById("fullSourceUpdated");
+        const badgeEl = document.getElementById("fullFeedStatusBadge");
+        const dotEl = document.getElementById("fullLiveDot");
+        const errBanner = document.getElementById("fullLiveErrorBanner");
+        const liveContainer = document.getElementById("fullLiveAlertsContainer");
+        const sampleContainer = document.getElementById("sampleAlertsContainer");
+        const filterVal = document.getElementById("hazardFilterSelect") ? document.getElementById("hazardFilterSelect").value : "ALL";
+        const showSamples = document.getElementById("toggleShowSamples") ? document.getElementById("toggleShowSamples").checked : true;
+
+        if (lastCheckedEl) lastCheckedEl.textContent = LiveDisasterService.lastCheckedBrowserTime;
+        if (sourceUpdEl) sourceUpdEl.textContent = LiveDisasterService.latestSourceUpdateTime;
+
+        if (LiveDisasterService.fetchError) {
+          if (dotEl) dotEl.className = "live-dot amber";
+          if (badgeEl) {
+            badgeEl.className = "badge badge-pending";
+            badgeEl.textContent = "Live Feed Unavailable";
+          }
+          if (errBanner) {
+            errBanner.innerHTML = "⚠️ <strong>Live Feed Unavailable:</strong> " + escapeHtml(LiveDisasterService.fetchError);
+            errBanner.classList.add("show");
+          }
+        } else {
+          if (dotEl) dotEl.className = "live-dot";
+          if (badgeEl) {
+            badgeEl.className = "badge badge-verified";
+            badgeEl.textContent = "Live API Active";
+          }
+          if (errBanner) errBanner.classList.remove("show");
+        }
+
+        const matchesFilter = function (item) {
+          if (filterVal === "ALL") return true;
+          const hay = ((item.hazardType || "") + " " + (item.title || "")).toLowerCase();
+          return hay.indexOf(filterVal.toLowerCase()) !== -1;
+        };
+
+        if (liveContainer) {
+          const filteredLive = LiveDisasterService.liveItems.filter(matchesFilter);
+          if (filteredLive.length === 0) {
+            liveContainer.innerHTML =
+              '<div style="grid-column:1/-1; font-size:0.8rem; color:var(--slate-500); background:var(--slate-50); padding:0.9rem; border-radius:6px; border:1px solid var(--slate-200);">' +
+                (LiveDisasterService.fetchError
+                  ? "Live API feed could not be reached from your browser at this moment. Zero fake alerts are displayed."
+                  : "No live India disaster records match the selected hazard filter.") +
+              '</div>';
+          } else {
+            liveContainer.innerHTML = filteredLive.map(buildDisasterCardHtml).join("");
+          }
+        }
+
+        if (sampleContainer) {
+          if (!showSamples) {
+            sampleContainer.innerHTML = '<div style="font-size:0.78rem; color:var(--slate-500);">Training format samples hidden by user toggle.</div>';
+          } else {
+            const filteredSamples = TRAINING_SAMPLE_ALERTS.filter(matchesFilter);
+            sampleContainer.innerHTML = filteredSamples.map(buildDisasterCardHtml).join("");
+          }
+        }
+      }
+
+      /* ----------------------------------------------------------------------
+         CITIZEN REPORT MODULE FUNCTIONS
+         ---------------------------------------------------------------------- */
+      function updateMapPinVisual(lat, lng) {
+        const normLat = Math.max(0, Math.min(1, (lat - 28.50) / 0.25));
+        const normLng = Math.max(0, Math.min(1, (lng - 77.10) / 0.30));
+        const x = Math.round(15 + normLng * 370);
+        const y = Math.round(155 - normLat * 140);
+        const pin = document.getElementById("mapPinGroup");
+        if (pin) {
+          pin.setAttribute("transform", "translate(" + x + "," + y + ")");
+        }
+      }
+
+      function renderCitizenReportFeed() {
+        const feedEl = document.getElementById("citizenReportFeed");
+        const countEl = document.getElementById("reportFeedCount");
+        const navBadge = document.getElementById("navReportCount");
+
+        if (countEl) countEl.textContent = String(reportsList.length);
+        if (navBadge) navBadge.textContent = String(reportsList.length);
+        if (!feedEl) return;
+
+        if (reportsList.length === 0) {
+          feedEl.innerHTML = '<div style="font-size:0.82rem; color:var(--slate-500);">No demo reports stored yet.</div>';
+          return;
+        }
+
+        feedEl.innerHTML = reportsList.slice().reverse().map(function (r) {
+          let statusBadge = '<span class="badge badge-pending">Pending (Unverified)</span>';
+          if (r.status === "Under Review") statusBadge = '<span class="badge badge-review">Under Review</span>';
+          if (r.status === "Verified") statusBadge = '<span class="badge badge-verified">✔ Verified</span>';
+          if (r.status === "Rejected") statusBadge = '<span class="badge badge-rejected">Rejected</span>';
+
+          const dupTag = r.isDuplicateFlag
+            ? '<span class="badge badge-danger" style="margin-left:0.35rem;">⚠️ Potential Duplicate</span>'
+            : '';
+
+          const dangerTag = r.immediateDanger === "yes"
+            ? '<span class="badge badge-danger">Immediate Danger: YES</span>'
+            : '<span class="badge badge-navy">Immediate Danger: No</span>';
+
+          const photoHtml = r.photoDataUrl
+            ? '<img src="' + r.photoDataUrl + '" alt="Report attachment" style="width:48px;height:48px;object-fit:cover;border-radius:4px;border:1px solid var(--slate-300);margin-top:0.4rem;" />'
+            : '';
+
+          return (
+            '<div style="background:var(--slate-50); border:1px solid var(--slate-200); border-radius:var(--radius-md); padding:0.85rem;">' +
+              '<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.4rem; margin-bottom:0.35rem;">' +
+                '<div><strong>' + escapeHtml(r.id) + '</strong> • <span style="font-size:0.75rem; color:var(--slate-500);">' + escapeHtml(r.timestamp) + '</span>' + dupTag + '</div>' +
+                statusBadge +
+              '</div>' +
+              '<div style="font-size:0.9rem; font-weight:800; color:var(--navy-900);">' + escapeHtml(r.location) + '</div>' +
+              '<div style="font-size:0.75rem; color:var(--slate-600); margin:0.2rem 0 0.45rem;">' +
+                'Coords: ' + Number(r.lat).toFixed(4) + ', ' + Number(r.lng).toFixed(4) + ' • ' +
+                '<strong>' + r.people + ' people</strong> • Severity ' + r.severity + '/5 • Injuries: ' + escapeHtml(r.injuries) +
+              '</div>' +
+              '<div style="display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap; margin-bottom:0.35rem;">' +
+                dangerTag +
+                '<span style="font-size:0.74rem; color:var(--slate-500);">Reporter: ' + escapeHtml(r.reporterName || "Anonymous") + '</span>' +
+              '</div>' +
+              '<p style="font-size:0.78rem; color:var(--slate-700);">' + escapeHtml(r.description) + '</p>' +
+              photoHtml +
+            '</div>'
+          );
+        }).join("");
+      }
+
+      /* ----------------------------------------------------------------------
+         COORDINATOR DASHBOARD FUNCTIONS
+         ---------------------------------------------------------------------- */
+      function renderCoordinatorDashboard() {
+        const statusFilter = document.getElementById("filterStatus") ? document.getElementById("filterStatus").value : "ALL";
+        const urgencyFilter = document.getElementById("filterUrgency") ? document.getElementById("filterUrgency").value : "ALL";
+
+        const filtered = reportsList.filter(function (r) {
+          if (statusFilter !== "ALL" && r.status !== statusFilter) return false;
+          if (urgencyFilter === "DANGER" && r.immediateDanger !== "yes") return false;
+          if (urgencyFilter === "HIGH_SEV" && r.severity < 4) return false;
+          if (urgencyFilter === "DUPLICATES" && !r.isDuplicateFlag) return false;
+          return true;
+        });
+
+        const statsEl = document.getElementById("coordSummaryStats");
+        if (statsEl) {
+          const verifiedCount = reportsList.filter(function (r) { return r.status === "Verified"; }).length;
+          const pendingCount = reportsList.filter(function (r) { return r.status === "Pending"; }).length;
+          statsEl.innerHTML =
+            "Showing <strong>" + filtered.length + "</strong> of " + reportsList.length + " reports<br/>" +
+            "Verified: <strong>" + verifiedCount + "</strong> | Pending Review: <strong>" + pendingCount + "</strong>";
+        }
+
+        const mapSvg = document.getElementById("coordMapSvg");
+        if (mapSvg) {
+          const gridLines =
+            '<line x1="105" y1="0" x2="105" y2="110" stroke="#1e293b"/>' +
+            '<line x1="210" y1="0" x2="210" y2="110" stroke="#1e293b"/>' +
+            '<line x1="315" y1="0" x2="315" y2="110" stroke="#1e293b"/>' +
+            '<line x1="0" y1="55" x2="420" y2="55" stroke="#1e293b"/>' +
+            '<path d="M 0,80 Q 140,35 260,70 T 420,30" fill="none" stroke="#0d9488" stroke-width="10" opacity="0.35"/>';
+
+          const pins = filtered.map(function (r) {
+            const normLat = Math.max(0.08, Math.min(0.92, (r.lat - 28.50) / 0.25));
+            const normLng = Math.max(0.05, Math.min(0.95, (r.lng - 77.10) / 0.30));
+            const cx = Math.round(normLng * 400 + 10);
+            const cy = Math.round((1 - normLat) * 90 + 10);
+            let fill = "#f59e0b";
+            if (r.status === "Verified") fill = "#22c55e";
+            if (r.status === "Rejected") fill = "#94a3b8";
+
+            return (
+              '<g transform="translate(' + cx + ',' + cy + ')">' +
+                '<circle r="6" fill="' + fill + '" stroke="#ffffff" stroke-width="1.5"/>' +
+                '<text x="9" y="4" fill="#e2e8f0" font-size="9" font-weight="bold">' + escapeHtml(r.id) + ' (' + r.people + 'p)</text>' +
+              '</g>'
+            );
+          }).join("");
+
+          mapSvg.innerHTML = gridLines + pins;
+        }
+
+        const tbody = document.getElementById("coordTableBody");
+        if (!tbody) return;
+
+        if (filtered.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--slate-500);">No reports match the selected filters.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = filtered.map(function (r) {
+          const dupWarning = r.isDuplicateFlag
+            ? '<div style="margin-top:0.25rem;"><span class="badge badge-danger">⚠️ Possible Duplicate Location/Time</span></div>'
+            : '';
+
+          let statusBadge = '<span class="badge badge-pending">Pending (Unverified)</span>';
+          if (r.status === "Under Review") statusBadge = '<span class="badge badge-review">Under Review</span>';
+          if (r.status === "Verified") statusBadge = '<span class="badge badge-verified">✔ Independently Verified</span>';
+          if (r.status === "Rejected") statusBadge = '<span class="badge badge-rejected">Rejected</span>';
+
+          const statuses = ["Pending", "Under Review", "Verified", "Rejected"];
+          const optionsHtml = statuses.map(function (st) {
+            const sel = r.status === st ? "selected" : "";
+            return '<option value="' + st + '" ' + sel + '>' + st + '</option>';
+          }).join("");
+
+          return (
+            '<tr>' +
+              '<td>' +
+                '<strong>' + escapeHtml(r.id) + '</strong><br/>' +
+                '<span style="font-size:0.72rem; color:var(--slate-500);">' + escapeHtml(r.timestamp) + '</span>' +
+                dupWarning +
+              '</td>' +
+              '<td>' +
+                '<strong>' + escapeHtml(r.location) + '</strong><br/>' +
+                '<span style="font-size:0.72rem; color:var(--slate-500);">Lat ' + Number(r.lat).toFixed(4) + ', Lng ' + Number(r.lng).toFixed(4) + '</span>' +
+              '</td>' +
+              '<td>' +
+                '<div><strong>' + r.people + ' people</strong> • Severity ' + r.severity + '/5</div>' +
+                '<div style="font-size:0.74rem; color:var(--slate-600);">Danger: <strong>' + escapeHtml(r.immediateDanger.toUpperCase()) + '</strong> | Injuries: ' + escapeHtml(r.injuries) + '</div>' +
+                '<div style="font-size:0.74rem; color:var(--slate-500); margin-top:0.2rem;">"' + escapeHtml(r.description) + '"</div>' +
+              '</td>' +
+              '<td>' +
+                statusBadge +
+                '<div style="font-size:0.7rem; color:var(--slate-500); margin-top:0.3rem;">' +
+                  (r.status === "Verified" ? "Verified by Coordinator" : "Citizen claim — requires human verification") +
+                '</div>' +
+              '</td>' +
+              '<td>' +
+                '<div style="display:flex; flex-direction:column; gap:0.4rem; min-width:230px;">' +
+                  '<select id="coordStatus_' + r.id + '" class="form-control" style="padding:0.35rem; font-size:0.78rem;">' + optionsHtml + '</select>' +
+                  '<input id="coordNotes_' + r.id + '" type="text" class="form-control" style="padding:0.35rem; font-size:0.78rem;" value="' + escapeHtml(r.coordinatorNotes || "") + '" placeholder="Add coordinator review notes..." />' +
+                  '<button type="button" class="btn btn-navy btn-sm" onclick="window.ResQSimApp.updateReportVerification(\'' + r.id + '\')">Save Review Decision</button>' +
+                '</div>' +
+              '</td>' +
+            '</tr>'
+          );
+        }).join("");
+      }
+
+      /* ----------------------------------------------------------------------
+         SIMULATOR DOM SYNC & RENDERING FUNCTIONS
+         ---------------------------------------------------------------------- */
+      function syncSimZonesFromDOM() {
+        const cards = document.querySelectorAll(".sim-zone-row");
+        if (cards.length === 0) return;
+
+        simZonesState = Array.from(cards).map(function (row) {
+          const nameEl = row.querySelector(".sim-inp-name");
+          const peopleEl = row.querySelector(".sim-inp-people");
+          const travelEl = row.querySelector(".sim-inp-travel");
+          const sevEl = row.querySelector(".sim-inp-sev");
+          const routeEl = row.querySelector(".sim-inp-route");
+
+          return {
+            name: nameEl ? nameEl.value : "",
+            people: peopleEl ? parseInt(peopleEl.value, 10) : NaN,
+            baseTravelTime: travelEl ? parseInt(travelEl.value, 10) : NaN,
+            severity: sevEl ? parseInt(sevEl.value, 10) : NaN,
+            routeStatus: routeEl ? routeEl.value : "CLEAR"
+          };
+        });
+      }
+
+      function renderSimZonesForm() {
+        const container = document.getElementById("simZonesContainer");
+        if (!container) return;
+
+        const routeOptions = [
+          { val: "CLEAR", text: "Clear Water/Road Route (1.0x travel time)" },
+          { val: "OBSTRUCTED", text: "Obstructed / Strong Current (+25% travel time)" },
+          { val: "FLOODED", text: "Severely Flooded Detour (+50% travel time)" },
+          { val: "BLOCKED", text: "Blocked / Impassable (Cannot reach)" }
+        ];
+
+        const sevOptions = [
+          { val: 1, text: "1 - Low" },
+          { val: 2, text: "2 - Moderate" },
+          { val: 3, text: "3 - Elevated" },
+          { val: 4, text: "4 - High Risk" },
+          { val: 5, text: "5 - Critical Life Safety" }
+        ];
+
+        container.innerHTML = simZonesState.map(function (z, idx) {
+          const removeBtn = simZonesState.length > 2
+            ? '<button type="button" class="btn-danger-sm" onclick="window.ResQSimApp.removeSimZone(' + idx + ')">✕ Remove Zone</button>'
+            : '';
+
+          const sevHtml = sevOptions.map(function (o) {
+            return '<option value="' + o.val + '" ' + (z.severity === o.val ? "selected" : "") + '>' + o.text + '</option>';
+          }).join("");
+
+          const routeHtml = routeOptions.map(function (r) {
+            return '<option value="' + r.val + '" ' + (z.routeStatus === r.val ? "selected" : "") + '>' + r.text + '</option>';
+          }).join("");
+
+          return (
+            '<div class="zone-card sim-zone-row">' +
+              '<div class="zone-card-header">' +
+                '<div style="display:flex; align-items:center; gap:0.5rem; flex-grow:1;">' +
+                  '<span class="zone-num">' + (idx + 1) + '</span>' +
+                  '<input type="text" class="form-control sim-inp-name" value="' + escapeHtml(z.name) + '" placeholder="Location Name" />' +
+                '</div>' +
+                removeBtn +
+              '</div>' +
+              '<div class="form-grid-3" style="margin-bottom:0.55rem;">' +
+                '<div>' +
+                  '<label style="font-size:0.7rem; font-weight:700; color:var(--slate-600);">People Affected</label>' +
+                  '<input type="number" min="1" max="5000" class="form-control sim-inp-people" value="' + (Number.isNaN(z.people) ? "" : z.people) + '" />' +
+                '</div>' +
+                '<div>' +
+                  '<label style="font-size:0.7rem; font-weight:700; color:var(--slate-600);">Base 1-Way Travel (m)</label>' +
+                  '<input type="number" min="5" max="240" class="form-control sim-inp-travel" value="' + (Number.isNaN(z.baseTravelTime) ? "" : z.baseTravelTime) + '" />' +
+                '</div>' +
+                '<div>' +
+                  '<label style="font-size:0.7rem; font-weight:700; color:var(--slate-600);">Severity (1–5)</label>' +
+                  '<select class="form-control sim-inp-sev">' + sevHtml + '</select>' +
+                '</div>' +
+              '</div>' +
+              '<div>' +
+                '<label style="font-size:0.7rem; font-weight:700; color:var(--slate-600);">Manual Route Condition (Demo Assumption)</label>' +
+                '<select class="form-control sim-inp-route">' + routeHtml + '</select>' +
+              '</div>' +
+            '</div>'
+          );
+        }).join("");
+
+        const addBtn = document.getElementById("btnAddZone");
+        if (addBtn) addBtn.disabled = simZonesState.length >= 5;
+
+        const lbl = document.getElementById("simZoneCountLabel");
+        if (lbl) lbl.textContent = simZonesState.length + " / 5 Zones Configured";
+      }
+
+      function renderSimulationOutputs(resA, resB, config) {
+        document.getElementById("resA_reached").textContent = resA.totalRescued + " (" + resA.rescuedPct + "%)";
+        document.getElementById("resA_unmet").textContent = String(resA.unmetDemand);
+        document.getElementById("resA_arrival").textContent = resA.avgFirstArrival !== null ? resA.avgFirstArrival + "m" : "N/A";
+
+        document.getElementById("resB_reached").textContent = resB.totalRescued + " (" + resB.rescuedPct + "%)";
+        document.getElementById("resB_unmet").textContent = String(resB.unmetDemand);
+        document.getElementById("resB_arrival").textContent = resB.avgFirstArrival !== null ? resB.avgFirstArrival + "m" : "N/A";
+
+        const charts = [
+          {
+            title: "Total People Reached (% of " + resA.totalDemand + " Total Demand)",
+            pctA: resA.rescuedPct,
+            pctB: resB.rescuedPct,
+            txtA: resA.totalRescued + " / " + resA.totalDemand + " (" + resA.rescuedPct + "%)",
+            txtB: resB.totalRescued + " / " + resB.totalDemand + " (" + resB.rescuedPct + "%)"
+          },
+          {
+            title: "High-Severity Population Reached (Severity 4–5)",
+            pctA: resA.critRescuedPct,
+            pctB: resB.critRescuedPct,
+            txtA: resA.critRescued + " / " + resA.critDemand + " (" + resA.critRescuedPct + "%)",
+            txtB: resB.critRescued + " / " + resB.critDemand + " (" + resB.critRescuedPct + "%)"
+          },
+          {
+            title: "Rescue Boat Fleet Utilization (%)",
+            pctA: resA.utilizationPct,
+            pctB: resB.utilizationPct,
+            txtA: resA.utilizationPct + "% (" + resA.totalTrips + " trips)",
+            txtB: resB.utilizationPct + "% (" + resB.totalTrips + " trips)"
+          }
+        ];
+
+        document.getElementById("simChartsContainer").innerHTML = charts.map(function (c) {
+          return (
+            '<div class="chart-box">' +
+              '<div style="font-size:0.78rem; font-weight:800; color:var(--navy-900); margin-bottom:0.45rem;">' + c.title + '</div>' +
+              '<div style="margin-bottom:0.45rem;">' +
+                '<div style="display:flex; justify-content:space-between; font-size:0.73rem;">' +
+                  '<span>Strategy A (Nearest-First)</span><strong>' + c.txtA + '</strong>' +
+                '</div>' +
+                '<div class="bar-track"><div class="bar-fill-a" style="width:' + c.pctA + '%;"></div></div>' +
+              '</div>' +
+              '<div>' +
+                '<div style="display:flex; justify-content:space-between; font-size:0.73rem;">' +
+                  '<span>Strategy B (Severity-Weighted)</span><strong style="color:var(--teal-700);">' + c.txtB + '</strong>' +
+                '</div>' +
+                '<div class="bar-track"><div class="bar-fill-b" style="width:' + c.pctB + '%;"></div></div>' +
+              '</div>' +
+            '</div>'
+          );
+        }).join("");
+
+        const bullets = [];
+        if (resA.totalRescued > resB.totalRescued) {
+          bullets.push(
+            "<strong>Volume vs. Criticality Trade-Off:</strong> Strategy A reached <strong>" +
+            (resA.totalRescued - resB.totalRescued) + " more people overall</strong> (" + resA.totalRescued + " vs. " + resB.totalRescued +
+            ") because cycling boats to the nearest reachable zone minimized transit time and completed <strong>" +
+            resA.totalTrips + " trips</strong> vs. Strategy B's <strong>" + resB.totalTrips + " trips</strong>."
+          );
+        } else if (resB.totalRescued > resA.totalRescued) {
+          bullets.push(
+            "<strong>Severity-Weighted Advantage:</strong> Strategy B reached <strong>" +
+            (resB.totalRescued - resA.totalRescued) + " more people</strong> while prioritizing severe zones."
+          );
+        } else {
+          bullets.push(
+            "<strong>Identical Total Headcount (" + resA.totalRescued + " people):</strong> Both strategies rescued the same total headcount within " +
+            config.timeHorizon + " minutes, but served different locations."
+          );
+        }
+
+        bullets.push(
+          "<strong>High-Severity Coverage (Severity 4–5):</strong> Strategy B evacuated <strong>" +
+          resB.critRescued + " of " + resB.critDemand + " critical citizens (" + resB.critRescuedPct +
+          "%)</strong> compared to <strong>" + resA.critRescued + " (" + resA.critRescuedPct + "%)</strong> under Strategy A."
+        );
+
+        bullets.push(
+          "<strong>Model Assumptions:</strong> Calculated for <strong>" + config.boatCount + " boat(s)</strong> carrying up to <strong>" +
+          config.boatCapacity + " pax/trip</strong> over <strong>" + config.timeHorizon +
+          " mins</strong>. Round-trip time = <code>(2 × Effective Travel) + 10m boarding buffer</code>."
+        );
+
+        document.getElementById("simExplanationList").innerHTML = bullets.map(function (b) {
+          return "<li>" + b + "</li>";
+        }).join("");
+
+        const compRows = [
+          { m: "Total People Reached", a: resA.totalRescued + " / " + resA.totalDemand + " (" + resA.rescuedPct + "%)", b: resB.totalRescued + " / " + resB.totalDemand + " (" + resB.rescuedPct + "%)" },
+          { m: "Remaining Unmet Demand", a: resA.unmetDemand + " people", b: resB.unmetDemand + " people" },
+          { m: "Critical People Reached (Sev 4–5)", a: resA.critRescued + " / " + resA.critDemand + " (" + resA.critRescuedPct + "%)", b: resB.critRescued + " / " + resB.critDemand + " (" + resB.critRescuedPct + "%)" },
+          { m: "Avg. First Boat Response Time", a: resA.avgFirstArrival !== null ? resA.avgFirstArrival + " mins" : "N/A", b: resB.avgFirstArrival !== null ? resB.avgFirstArrival + " mins" : "N/A" },
+          { m: "Critical Zone Avg. First Arrival", a: resA.avgCritArrival !== null ? resA.avgCritArrival + " mins" : "Unreached", b: resB.avgCritArrival !== null ? resB.avgCritArrival + " mins" : "Unreached" },
+          { m: "Locations Reached / Cleared", a: resA.zonesReached + " of " + resA.totalZones + " (" + resA.clearedZones + " cleared)", b: resB.zonesReached + " of " + resB.totalZones + " (" + resB.clearedZones + " cleared)" },
+          { m: "Fleet Utilization & Trips", a: resA.utilizationPct + "% (" + resA.totalTrips + " trips)", b: resB.utilizationPct + "% (" + resB.totalTrips + " trips)" }
+        ];
+
+        document.getElementById("simComparisonBody").innerHTML = compRows.map(function (r) {
+          return (
+            "<tr>" +
+              "<td><strong>" + r.m + "</strong></td>" +
+              "<td>" + r.a + "</td>" +
+              "<td style='color:var(--teal-700); font-weight:700;'>" + r.b + "</td>" +
+            "</tr>"
+          );
+        }).join("");
+
+        document.getElementById("simZoneBreakdownBody").innerHTML = resA.zones.map(function (zA, i) {
+          const zB = resB.zones[i];
+          const effTxt = Number.isFinite(zA.effectiveTravelTime)
+            ? zA.effectiveTravelTime + "m eff. (" + zA.baseTravelTime + "m base, " + zA.routeStatus + ")"
+            : "BLOCKED / Impassable";
+
+          const arrA = zA.firstArrivalTime !== null ? "1st boat @ " + zA.firstArrivalTime + "m (" + zA.tripsReceived + " trips)" : "Not reached";
+          const arrB = zB.firstArrivalTime !== null ? "1st boat @ " + zB.firstArrivalTime + "m (" + zB.tripsReceived + " trips)" : "Not reached";
+
+          return (
+            "<tr>" +
+              "<td>" +
+                "<strong>" + escapeHtml(zA.name) + "</strong> (Sev " + zA.severity + ")<br/>" +
+                "<span style='font-size:0.72rem; color:var(--slate-500);'>" + escapeHtml(effTxt) + "</span>" +
+              "</td>" +
+              "<td><strong>" + zA.initialPeople + " pax</strong></td>" +
+              "<td>" +
+                "<strong>" + zA.rescuedPeople + " rescued</strong> (" + zA.remainingPeople + " unmet)<br/>" +
+                "<span style='font-size:0.72rem; color:var(--slate-500);'>" + arrA + "</span>" +
+              "</td>" +
+              "<td style='color:var(--teal-700);'>" +
+                "<strong>" + zB.rescuedPeople + " rescued</strong> (" + zB.remainingPeople + " unmet)<br/>" +
+                "<span style='font-size:0.72rem; color:var(--slate-500);'>" + arrB + "</span>" +
+              "</td>" +
+            "</tr>"
+          );
+        }).join("");
+      }
+
+      /* ======================================================================
+         5. PUBLIC CONTROLLER API (`window.ResQSimApp`)
+         ====================================================================== */
+      window.ResQSimApp = {
+        switchView: function (viewName) {
+          const views = ["landing", "alerts", "report", "coordinator", "simulator"];
+          views.forEach(function (v) {
+            const sec = document.getElementById("view-" + v);
+            const btn = document.getElementById("tabBtn-" + v);
+            if (sec) sec.classList.toggle("active", v === viewName);
+            if (btn) btn.classList.toggle("active", v === viewName);
+          });
+
+          if (viewName === "alerts") {
+            renderFullAlertsView();
+          } else if (viewName === "report") {
+            const clk = document.getElementById("liveFormClock");
+            if (clk) clk.textContent = formatNowTimestamp();
+            renderCitizenReportFeed();
+          } else if (viewName === "coordinator") {
+            renderCoordinatorDashboard();
+          }
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        },
+
+        refreshLiveDisasterData: async function () {
+          renderCompactLivePanel();
+          await LiveDisasterService.fetchIndiaDisasters();
+          renderCompactLivePanel();
+          renderFullAlertsView();
+        },
+
+        fetchFromCustomProxy: async function () {
+          const urlInput = document.getElementById("customProxyUrl");
+          const statusEl = document.getElementById("proxyStatusText");
+          if (!urlInput || !urlInput.value.trim()) {
+            if (statusEl) statusEl.textContent = "Please enter a valid local proxy URL first.";
+            return;
+          }
+          const proxyUrl = urlInput.value.trim();
+          if (statusEl) statusEl.textContent = "Testing proxy connection to " + proxyUrl + "...";
+
+          try {
+            const res = await fetch(proxyUrl);
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            if (statusEl) statusEl.textContent = "✔ Proxy reachable (" + formatNowTimestamp() + ").";
+          } catch (err) {
+            if (statusEl) statusEl.textContent = "⚠️ Proxy unreachable (" + (err.message || "CORS/Network error") + ").";
+          }
+        },
+
+        renderFullAlertsView: renderFullAlertsView,
+
+        handleMapGridClick: function (event) {
+          const box = document.getElementById("svgMapPicker");
+          if (!box) return;
+          const rect = box.getBoundingClientRect();
+          const relX = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+          const relY = Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height));
+
+          const lat = (28.75 - relY * 0.25).toFixed(4);
+          const lng = (77.10 + relX * 0.30).toFixed(4);
+
+          document.getElementById("repLat").value = lat;
+          document.getElementById("repLng").value = lng;
+          updateMapPinVisual(parseFloat(lat), parseFloat(lng));
+        },
+
+        previewReportPhoto: function (event) {
+          const file = event.target.files && event.target.files[0];
+          const box = document.getElementById("photoPreviewContainer");
+          const img = document.getElementById("photoPreviewImg");
+          const nameEl = document.getElementById("photoPreviewName");
+
+          if (!file) {
+            currentPhotoDataUrl = null;
+            if (box) box.style.display = "none";
+            return;
+          }
+
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            currentPhotoDataUrl = e.target.result;
+            if (img) img.src = currentPhotoDataUrl;
+            if (nameEl) nameEl.textContent = file.name;
+            if (box) box.style.display = "flex";
+          };
+          reader.readAsDataURL(file);
+        },
+
+        submitCitizenReport: function (event) {
+          if (event) event.preventDefault();
+
+          const errEl = document.getElementById("reportErrorAlert");
+          const dupEl = document.getElementById("reportDupWarning");
+          const okEl = document.getElementById("reportSuccessAlert");
+          errEl.classList.remove("show");
+          dupEl.classList.remove("show");
+          okEl.classList.remove("show");
+
+          const loc = document.getElementById("repLocation").value.trim();
+          const lat = parseFloat(document.getElementById("repLat").value);
+          const lng = parseFloat(document.getElementById("repLng").value);
+          const people = parseInt(document.getElementById("repPeople").value, 10);
+          const danger = document.getElementById("repDanger").value;
+          const injuries = document.getElementById("repInjuries").value;
+          const severity = parseInt(document.getElementById("repSeverity").value, 10);
+          const desc = document.getElementById("repDesc").value.trim();
+
+          const errors = [];
+          if (!loc) errors.push("Location name/address is required.");
+          if (Number.isNaN(lat) || lat < -90 || lat > 90) errors.push("Latitude must be a valid number between -90 and 90.");
+          if (Number.isNaN(lng) || lng < -180 || lng > 180) errors.push("Longitude must be a valid number between -180 and 180.");
+          if (!Number.isInteger(people) || people < 1 || people > 5000) errors.push("Number of people affected must be between 1 and 5,000.");
+          if (!desc) errors.push("Short situation description is required.");
+
+          if (errors.length > 0) {
+            errEl.innerHTML = "<strong>Please fix the following errors:</strong><ul style='margin-top:0.3rem;padding-left:1.1rem;'>" +
+              errors.map(function (e) { return "<li>" + escapeHtml(e) + "</li>"; }).join("") + "</ul>";
+            errEl.classList.add("show");
+            return;
+          }
+
+          const nowMs = Date.now();
+          const matchingExisting = reportsList.find(function (existing) {
+            const sameName = existing.location.toLowerCase() === loc.toLowerCase();
+            const closeCoords = Math.abs(existing.lat - lat) < 0.005 && Math.abs(existing.lng - lng) < 0.005;
+            const withinHour = Math.abs(nowMs - (existing.epochMs || nowMs)) <= 3600 * 1000;
+            return (sameName || closeCoords) && withinHour;
+          });
+
+          const newId = "RPT-" + (1001 + reportsList.length);
+          const timestampStr = formatNowTimestamp();
+
+          const newReport = {
+            id: newId,
+            reporterName: document.getElementById("repName").value.trim() || "Anonymous Citizen (Demo)",
+            contact: document.getElementById("repContact").value.trim() || "Not provided",
+            location: loc,
+            lat: lat,
+            lng: lng,
+            people: people,
+            immediateDanger: danger,
+            injuries: injuries,
+            severity: severity,
+            description: desc,
+            timestamp: timestampStr,
+            epochMs: nowMs,
+            status: "Pending",
+            coordinatorNotes: "",
+            isDuplicateFlag: Boolean(matchingExisting),
+            photoDataUrl: currentPhotoDataUrl
+          };
+
+          reportsList.push(newReport);
+          saveReportsToStorage(reportsList);
+          renderCitizenReportFeed();
+          renderCoordinatorDashboard();
+
+          if (matchingExisting) {
+            dupEl.innerHTML =
+              "⚠️ <strong>Duplicate-Report Warning:</strong> Report <strong>" + newId +
+              "</strong> matches location/coordinates of recent report <strong>" + escapeHtml(matchingExisting.id) +
+              "</strong>. Your report was <strong>NOT discarded</strong>; it has been saved with a duplicate review flag for the Coordinator.";
+            dupEl.classList.add("show");
+          }
+
+          okEl.innerHTML =
+            "✔ Demo Flood Report <strong>" + newId + "</strong> saved locally at " + timestampStr +
+            " with status <strong>Pending (Unverified)</strong>.";
+          okEl.classList.add("show");
+        },
+
+        seedDefaultReports: function () {
+          reportsList = getDefaultSeedReports();
+          saveReportsToStorage(reportsList);
+          renderCitizenReportFeed();
+          renderCoordinatorDashboard();
+        },
+
+        updateReportVerification: function (reportId) {
+          const statusEl = document.getElementById("coordStatus_" + reportId);
+          const notesEl = document.getElementById("coordNotes_" + reportId);
+          if (!statusEl) return;
+
+          reportsList = reportsList.map(function (r) {
+            if (r.id === reportId) {
+              return Object.assign({}, r, {
+                status: statusEl.value,
+                coordinatorNotes: notesEl ? notesEl.value.trim() : r.coordinatorNotes
+              });
+            }
+            return r;
+          });
+
+          saveReportsToStorage(reportsList);
+          renderCitizenReportFeed();
+          renderCoordinatorDashboard();
+        },
+
+        loadVerifiedIntoSimulator: function () {
+          const verified = reportsList.filter(function (r) { return r.status === "Verified"; });
+          if (verified.length < 2) {
+            alert("Please mark at least 2 reports as 'Verified' in the Coordinator Dashboard to build a valid 2–5 zone simulation scenario.");
+            return;
+          }
+
+          simZonesState = verified.slice(0, 5).map(function (r, idx) {
+            return {
+              name: r.location,
+              people: r.people,
+              baseTravelTime: 15 + (idx * 10),
+              severity: r.severity,
+              routeStatus: "CLEAR"
+            };
+          });
+
+          renderSimZonesForm();
+          this.switchView("simulator");
+          this.runSimulation("Loaded " + simZonesState.length + " human-verified reports from Coordinator Dashboard.");
+        },
+
+        loadSampleScenario: function () {
+          document.getElementById("simBoatCount").value = SAMPLE_SCENARIO.boatCount;
+          document.getElementById("simBoatCap").value = SAMPLE_SCENARIO.boatCapacity;
+          document.getElementById("simTimeWindow").value = SAMPLE_SCENARIO.timeHorizon;
+
+          simZonesState = SAMPLE_SCENARIO.zones.map(function (z) {
+            return Object.assign({}, z);
+          });
+
+          renderSimZonesForm();
+          this.runSimulation("Sample 3-Zone Scenario loaded and calculated.");
+        },
+
+        addSimZone: function () {
+          syncSimZonesFromDOM();
+          if (simZonesState.length >= 5) return;
+
+          const nextIdx = simZonesState.length + 1;
+          simZonesState.push({
+            name: "Flood Zone " + nextIdx,
+            people: 24,
+            baseTravelTime: 20,
+            severity: 3,
+            routeStatus: "CLEAR"
+          });
+
+          renderSimZonesForm();
+          this.runSimulation("Added Flood Zone " + nextIdx + " and recalculated.");
+        },
+
+        removeSimZone: function (idx) {
+          syncSimZonesFromDOM();
+          if (simZonesState.length <= 2) return;
+
+          simZonesState.splice(idx, 1);
+          renderSimZonesForm();
+          this.runSimulation("Removed zone and recalculated.");
+        },
+
+        runSimulation: function (reasonText) {
+          syncSimZonesFromDOM();
+
+          const boatCountVal = parseInt(document.getElementById("simBoatCount").value, 10);
+          const boatCapVal = parseInt(document.getElementById("simBoatCap").value, 10);
+          const timeWinVal = parseInt(document.getElementById("simTimeWindow").value, 10);
+
+          const config = {
+            boatCount: boatCountVal,
+            boatCapacity: boatCapVal,
+            timeHorizon: timeWinVal,
+            zones: simZonesState
+          };
+
+          const validation = SimulationEngine.validateScenario(config);
+          const errBanner = document.getElementById("simErrorBanner");
+          const okBanner = document.getElementById("simStatusBanner");
+          const resultsPanel = document.getElementById("simResultsPanel");
+
+          if (!validation.isValid) {
+            errBanner.innerHTML =
+              "<strong>⚠️ Simulation Halted — Invalid Input Parameters:</strong>" +
+              "<ul style='margin-top:0.35rem; padding-left:1.2rem;'>" +
+              validation.errors.map(function (e) { return "<li>" + escapeHtml(e) + "</li>"; }).join("") +
+              "</ul>";
+            errBanner.classList.add("show");
+            okBanner.classList.remove("show");
+            okBanner.style.display = "none";
+            if (resultsPanel) resultsPanel.style.opacity = "0.35";
+            return;
+          }
+
+          errBanner.classList.remove("show");
+          if (resultsPanel) resultsPanel.style.opacity = "1";
+
+          const resA = SimulationEngine.runStrategy(config, "NEAREST");
+          const resB = SimulationEngine.runStrategy(config, "SEVERITY");
+
+          renderSimulationOutputs(resA, resB, config);
+
+          simRunCount += 1;
+          okBanner.style.display = "flex";
+          okBanner.classList.add("show");
+          document.getElementById("simStatusMsg").textContent =
+            "✔ " + (typeof reasonText === "string" ? reasonText : "Simulation recalculated from current inputs.") +
+            " (Total Demand: " + resA.totalDemand + " people across " + config.zones.length + " zones)";
+          document.getElementById("simRunCounter").textContent = "Calculation #" + simRunCount;
+        }
+      };
+
+      // Initialize all modules and start auto-refresh interval (every 5 minutes)
+      function initApp() {
+        renderCitizenReportFeed();
+        renderCoordinatorDashboard();
+        window.ResQSimApp.loadSampleScenario();
+        window.ResQSimApp.refreshLiveDisasterData();
+
+        setInterval(function () {
+          window.ResQSimApp.refreshLiveDisasterData();
+        }, 300000);
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initApp);
+      } else {
+        initApp();
+      }
+    })();
+  </script>
+</body>
+</html>
